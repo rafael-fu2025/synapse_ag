@@ -329,14 +329,12 @@ This project is released under the **MIT License**. See [LICENSE](LICENSE) for d
 
 ## Author & Acknowledgements
 
-**SYNAPSE** is a capstone project submitted to the **College of Computer Studies, Foundation University**, in partial fulfillment of the requirements for the degree of **Bachelor of Science in Computer Science**.
+**SYNAPSE** is a capstone project submitted to the **College of Computer Studies, Foundation University**, in partial fulfillment of the requirements for the degree of **Bachelor of Science in Information Technology**.
 
-**Author:** Rafael Torres — 2024–2026
-
-Special thanks to the capstone panel reviewers, the Foundation University Health Services Office, and the Guidance and Counselling Office for their domain expertise and pilot-testing support.
+**Author:** Team SYNAPSE — 2024–2026
 
 ---
 
 <p align="center">
-  <sub>Built with CodeIgniter 4.7 · PHP 8.2 · MySQL 8.0 · Chart.js · ❤️</sub>
+  <sub>Built with CodeIgniter 4.7 · PHP 8.2 · MySQL 8.0 · Chart.js</sub>
 </p>
