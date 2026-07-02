@@ -1,0 +1,558 @@
+@startuml SYNAPSE_System_Flowchart
+!theme cerulean-outline
+title SYNAPSE — Unified Campus Health & Counseling System\nMaster System Flow (with Database Layer & Detailed Roles)
+
+' ============================================================
+' STYLING
+' ============================================================
+skinparam backgroundColor #FAFAFA
+skinparam activityBackgroundColor #E3F2FD
+skinparam activityBorderColor #1565C0
+skinparam activityDiamondBackgroundColor #FFF3E0
+skinparam activityDiamondBorderColor #E65100
+skinparam noteBackgroundColor #F3E5F5
+skinparam noteBorderColor #7B1FA2
+skinparam arrowColor #37474F
+skinparam defaultFontName Inter
+skinparam databaseBackgroundColor #E8F5E9
+skinparam databaseBorderColor #2E7D32
+
+' ============================================================
+' START
+' ============================================================
+start
+:User opens SYNAPSE platform;
+
+' ============================================================
+' AUTHENTICATION (see flowchart_auth.puml for details)
+' ============================================================
+partition "**1. Authentication & RBAC**\n//→ See flowchart_auth.puml for full detail//" #F5F5F5 {
+  :Enter email & password;
+  #E8F5E9:DB READ: **users**\n(verify credentials);
+  if (Valid credentials?) then (yes)
+    if (2FA enabled?) then (yes)
+      :Enter TOTP code;
+      #E8F5E9:DB READ: **users.totp_secret**;
+      if (TOTP valid?) then (yes)
+        #E8F5E9:DB WRITE: **refresh_tokens**\n(issue JWT + refresh token);
+      else (no)
+        :Show error, retry;
+        stop
+      endif
+    else (no)
+      #E8F5E9:DB WRITE: **refresh_tokens**\n(issue JWT + refresh token);
+    endif
+    #E8F5E9:DB READ: **user_roles** → **role_permissions**\n(load permissions);
+    #E8F5E9:DB WRITE: **audit_logs**\n(hash-chain verified);
+    #E8F5E9:DB UPDATE: **users.last_login_at**;
+  else (no)
+    #E8F5E9:DB WRITE: **audit_logs** (failed attempt);
+    :Show error, retry;
+    stop
+  endif
+}
+
+' ============================================================
+' DATABASE OVERVIEW
+' ============================================================
+partition "**synapse_ag — 28 Tables**" #F5F5F5 {
+  note
+    **Auth (5)**: users, roles, permissions, role_permissions, user_roles
+    **Students (2)**: students, emergency_contacts
+    **Clinic (4)**: clinic_staff_schedules, consultations, consultation_vitals, allergies
+    **Inventory (4)**: medicines, medicine_batches, treatments, inventory_transactions
+    **Counselling (6)**: counsellor_availability, counselling_appointments,
+      assessment_templates, assessment_questions, assessment_responses, referrals
+    **Crisis (1)**: crisis_alerts
+    **PASIMEO (4)**: outreach_programs, outreach_activities,
+      volunteer_assignments, outreach_attendance
+    **Shared (7)**: audit_logs, notifications, departments, report_configurations,
+      generated_reports, system_modules, refresh_tokens
+    **IoT (1)**: offline_checkin_buffer
+    **AI (6)**: ai_triage_predictions, ai_inventory_forecasts, ai_risk_scores,
+      scheduling_analytics, ai_generated_summaries, volunteer_workload_scores
+  end note
+}
+
+' ============================================================
+' DETAILED ROLE ROUTING
+' ============================================================
+partition "**2. Role-Based Dashboard Routing**" #F5F5F5 {
+  switch (User Role?)
+
+  ' ============================================================
+  ' ROLE 1: CLINIC STAFF (Doctor / Nurse / Clinic Admin)
+  ' ============================================================
+  case (Clinic Staff)
+    note right
+      **Sub-Roles**: Doctor, Nurse, Clinic Admin
+      **Permissions**:
+       View/Edit patient records
+       Create consultations & record vitals
+       Manage allergies & treatments
+       Manage medicine inventory & batches
+       Send referrals to counselling
+       Receive referrals from counselling
+       View clinic analytics & reports
+       Access IoT check-in scan results
+      ❌ Cannot view counselling session notes
+      ❌ Cannot view screening scores
+      ❌ Cannot access PASIMEO data
+      ❌ Cannot manage users or roles
+    end note
+
+    :Clinic Staff Dashboard;
+    :── **Clinic Quick Stats**: Today's patients,
+    pending consultations, active referrals,
+    low-stock medicine alerts, expiring batches;
+
+    fork
+      :**Patient Check-In & Records**|
+      :IoT QR/RFID scan or manual lookup;
+      #E8F5E9:DB READ: **students** (by qr_code/rfid_tag)\n**allergies**, **referrals** (active);
+      :View patient profile: name, photo,
+      blood type, allergies, emergency contacts,
+      referral status, consultation history;
+      :Create new consultation record;
+      #E8F5E9:DB WRITE: **consultations**\n(chief_complaint, check_in_method);
+      :Record vitals (temp, BP, HR, weight, height);
+      #E8F5E9:DB WRITE: **consultation_vitals**;
+      :Enter diagnosis & treatment notes;
+      :Administer treatment / dispense medicine;
+      #E8F5E9:DB WRITE: **treatments**\nDB UPDATE: **medicine_batches.quantity_remaining**\nDB WRITE: **inventory_transactions**;
+      :Mark consultation complete or follow-up;
+      #E8F5E9:DB UPDATE: **consultations.status**;
+
+    fork again
+      :**Medicine Inventory**|
+      ://→ See flowchart_inventory.puml//;
+      :View all medicines & current stock levels;
+      :Add new medicine or receive batch;
+      :View expiration calendar & alerts;
+      :View AI inventory forecast predictions;
+      #E8F5E9:DB R/W: **medicines**, **medicine_batches**\n**inventory_transactions**\nDB READ: **ai_inventory_forecasts**;
+
+    fork again
+      :**AI Smart Triage**|
+      ://→ See flowchart_ai.puml//;
+      :System analyzes chief complaint text;
+      :View AI-suggested priority + confidence;
+      :Accept or override AI suggestion;
+      #E8F5E9:DB WRITE: **ai_triage_predictions**\nDB UPDATE: **consultations.triage_priority**;
+
+    fork again
+      :**Referrals (Outgoing & Incoming)**|
+      :Create referral to counselling
+      (student ID + complaint category + urgency only);
+      :View incoming referrals from counsellors;
+      :Accept / redirect incoming referrals;
+      #E8F5E9:DB R/W: **referrals**\nDB WRITE: **notifications**;
+
+    fork again
+      :**Clinic Analytics & Reports**|
+      :View patient volume trends (daily/weekly/monthly);
+      :Top chief complaints breakdown;
+      :Medicine usage statistics;
+      :AI-generated narrative summaries;
+      #E8F5E9:DB READ: **consultations**, **treatments**\n**inventory_transactions**, **generated_reports**\n**ai_generated_summaries**;
+    end fork
+
+  ' ============================================================
+  ' ROLE 2: GUIDANCE COUNSELLOR
+  ' ============================================================
+  case (Counsellor)
+    note right
+      **Sub-Roles**: Counsellor, Head Counsellor
+      **Permissions**:
+       Manage own availability & schedule
+       View/manage assigned appointments
+       Administer PHQ-9 / GAD-7 screenings
+       View screening scores (own caseload)
+       Write & view session notes (own caseload)
+       Send/receive referrals (clinic ↔ counselling)
+       Acknowledge & manage crisis alerts
+       View AI risk scores & trajectories
+       View de-identified counselling trends
+      ❌ Cannot view other counsellors' session notes
+      ❌ Cannot access medicine inventory
+      ❌ Cannot access PASIMEO data
+      ❌ Cannot access patient clinical diagnosis
+      **Head Counsellor Extra**:
+       View crisis alerts for all counsellors
+       View aggregate stats (not individual notes)
+       Receive escalated unacknowledged referrals
+    end note
+
+    :Counsellor Dashboard;
+    :── **Today's View**: Pending requests,
+    today's schedule, referral queue,
+    active crisis alerts, no-show count;
+
+    fork
+      :**Appointment Management**|
+      ://→ See flowchart_counselling.puml//;
+      :Set weekly availability blocks
+      (with 15-min buffer enforcement);
+      :View pending appointment requests;
+      :Confirm / reschedule appointments;
+      :Record session notes after completion;
+      :Mark no-show (auto after 15 min);
+      #E8F5E9:DB R/W: **counsellor_availability**\n**counselling_appointments**\nDB UPDATE: **students.consecutive_no_shows**;
+
+    fork again
+      :**PHQ-9 / GAD-7 Screening**|
+      :Student completes screening form;
+      :System auto-scores responses;
+      if (Score ≥ 10?) then (yes)
+        :Auto-generate referral flag;
+        #E8F5E9:DB WRITE: **referrals** (auto);
+      else (no)
+        :Record score, no flag;
+      endif
+      if (PHQ-9 Item 9 = self-harm?) then (yes)
+        :CRISIS PROTOCOL;
+        :Display crisis banner to student
+        (hotline numbers, campus emergency);
+        #E8F5E9:DB WRITE: **crisis_alerts**\n(must acknowledge within 30 min);
+        :Urgent alert to head counsellor;
+        #E8F5E9:DB WRITE: **notifications** (urgent);
+      else (no)
+        :Standard processing;
+      endif
+      #E8F5E9:DB WRITE: **assessment_responses**\n(total_score calculated);
+
+    fork again
+      :**AI Risk Scoring & Trends**|
+      ://→ See flowchart_ai.puml//;
+      :View risk trajectory chart per student;
+      :See trend slope (improving/worsening);
+      :View anomaly flags (sudden score jumps);
+      :See projected score at 30-day horizon;
+      #E8F5E9:DB READ: **ai_risk_scores**\n**assessment_responses** (history);
+
+    fork again
+      :**AI Smart Scheduling**|
+      :View per-slot no-show rates;
+      :See overbooking recommendations;
+      :View predicted no-show probability
+      for each scheduled appointment;
+      #E8F5E9:DB READ: **scheduling_analytics**\n**counselling_appointments**;
+
+    fork again
+      :**Referrals & Crisis Alerts**|
+      :View incoming clinic referrals
+      (category + urgency only, no diagnosis);
+      :Accept/redirect within 48 hours;
+      :Create referrals to clinic
+      (category + urgency only, no session notes);
+      :Acknowledge crisis alerts;
+      :Document resolution actions;
+      #E8F5E9:DB R/W: **referrals**, **crisis_alerts**\nDB WRITE: **notifications**;
+    end fork
+
+  ' ============================================================
+  ' ROLE 3: PASIMEO COORDINATOR
+  ' ============================================================
+  case (PASIMEO Coordinator)
+    note right
+      **Permissions**:
+       Create/manage outreach programs
+       Create/manage outreach activities
+       Assign volunteers to activities
+       View volunteer schedule conflicts
+       Verify attendance via QR code
+       Generate activity & participation reports
+       View volunteer workload scores
+      ❌ Cannot view any clinic data
+      ❌ Cannot view any counselling data
+      ❌ Cannot view student health records
+      ❌ Cannot manage users or roles
+    end note
+
+    :PASIMEO Dashboard;
+    :── **Overview**: Active programs,
+    upcoming activities, pending assignments,
+    conflict alerts, volunteer hours summary;
+
+    fork
+      :**Program & Activity Management**|
+      ://→ See flowchart_pasimeo.puml//;
+      :Create outreach program
+      (name, description, date range);
+      :Add activities under program
+      (title, location, date, time, max volunteers);
+      :Set activity status
+      (upcoming → ongoing → completed);
+      #E8F5E9:DB R/W: **outreach_programs**\n**outreach_activities**;
+
+    fork again
+      :**Volunteer Assignment**|
+      :Select volunteers from school community;
+      :System checks for schedule conflicts
+      against clinic/counselling/other outreach;
+      if (Conflicts detected?) then (yes)
+        :Show conflict details & reason;
+        :AI suggests alternative volunteers
+        (workload-balanced);
+        #E8F5E9:DB READ: **clinic_staff_schedules**\n**counselling_appointments**\n**volunteer_assignments** (other);
+      else (no)
+        :Confirm assignment;
+      endif
+      #E8F5E9:DB R/W: **volunteer_assignments**\nDB R/W: **volunteer_workload_scores**;
+
+    fork again
+      :**QR Attendance Tracking**|
+      :Volunteer scans QR at event;
+      :Record check-in time;
+      :Record check-out time;
+      :Auto-calculate hours credited;
+      :Coordinator verifies attendance;
+      #E8F5E9:DB R/W: **outreach_attendance**;
+
+    fork again
+      :**Reports & Analytics**|
+      :Programs conducted summary;
+      :Volunteer hours per person;
+      :Attendance rates per activity;
+      :Export as PDF/CSV;
+      #E8F5E9:DB READ: **outreach_programs**\n**outreach_activities**, **outreach_attendance**\nDB WRITE: **generated_reports**;
+    end fork
+
+  ' ============================================================
+  ' ROLE 4: STUDENT / PATIENT
+  ' ============================================================
+  case (Student)
+    note right
+      **Permissions**:
+       View own medical records (read-only)
+       View own consultation history & vitals
+       View own allergies
+       Book counselling appointments online
+       Take PHQ-9 / GAD-7 screening forms
+       View own screening results (read-only)
+       View own referral status
+       View own outreach participation history
+       Receive appointment reminders
+      ❌ Cannot view other students' data
+      ❌ Cannot edit any records after submission
+      ❌ Cannot access staff-only dashboards
+      ❌ Cannot view counsellor session notes
+      ❌ Cannot access inventory or admin data
+    end note
+
+    :Student Portal;
+    :── **My Health Summary**: Recent visits,
+    active referrals, upcoming appointments,
+    screening reminders, outreach participation;
+
+    fork
+      :**My Medical Records**|
+      :View consultation history
+      (dates, chief complaints, attending staff);
+      :View recorded vitals over time;
+      :View allergy list;
+      :View emergency contacts;
+      #E8F5E9:DB READ: **consultations** (own)\n**consultation_vitals**, **allergies**\n**emergency_contacts** (own);
+
+    fork again
+      :**Book Counselling Appointment**|
+      :View available counsellor time slots;
+      :Select preferred date/time;
+      :Fill optional reason for visit;
+      :Submit booking request;
+      :Receive confirmation notification;
+      :Receive reminders (24hr + 1hr before);
+      #E8F5E9:DB READ: **counsellor_availability**\nDB WRITE: **counselling_appointments**\nDB WRITE: **notifications** (reminders);
+
+    fork again
+      :**Mental Health Screening**|
+      :Select PHQ-9 or GAD-7 form;
+      :Answer all questions;
+      :Submit form (read-only after submission);
+      :View own score and interpretation;
+      note right
+        If score ≥ 10: system
+        auto-flags for counsellor
+        review (student is NOT
+        notified of the flag)
+      end note
+      if (Crisis indicators detected?) then (yes)
+        :Crisis resource banner displayed
+        (hotline numbers, campus emergency);
+      else (no)
+        :Standard result display;
+      endif
+      #E8F5E9:DB READ: **assessment_templates**\n**assessment_questions**\nDB WRITE: **assessment_responses**;
+
+    fork again
+      :**My Referral Status**|
+      :View active referrals (direction, status);
+      :See referral timeline
+      (created → accepted → in progress → completed);
+      #E8F5E9:DB READ: **referrals** (own, limited fields);
+
+    fork again
+      :**My Outreach Participation**|
+      :View assigned outreach activities;
+      :View attendance history & hours;
+      #E8F5E9:DB READ: **volunteer_assignments** (own)\n**outreach_attendance** (own);
+    end fork
+
+  ' ============================================================
+  ' ROLE 5: SCHOOL ADMINISTRATOR
+  ' ============================================================
+  case (Admin)
+    note right
+      **Permissions**:
+       View aggregate clinic statistics
+       View de-identified counselling trends
+       View PASIMEO outreach reports
+       Manage user accounts & role assignments
+       Configure system modules & settings
+       View & verify audit logs
+       Manage report configurations
+       Export all reports (PDF/CSV/XLSX)
+       View AI-generated narrative summaries
+      ❌ Cannot view individual patient records
+      ❌ Cannot view individual counselling records
+      ❌ Cannot view screening scores
+      ❌ Cannot view session notes
+      ❌ Cannot delete/modify audit log entries
+    end note
+
+    :Admin Dashboard;
+    :── **Institutional Overview**:
+    Total students served (clinic + counselling),
+    system health, active users by role,
+    pending alerts, report schedule status;
+
+    fork
+      :**Analytics & Reports**|
+      ://→ See flowchart_ai.puml (Feature E)//;
+      :Clinic: patient volume, chief complaints,
+      medicine usage, average wait times;
+      :Counselling: appointment volume,
+      no-show rates, referral turnaround
+      (ALL de-identified, aggregate only);
+      :PASIMEO: programs conducted,
+      volunteer hours, participation rates;
+      :View AI-generated narrative summaries;
+      :Configure scheduled report generation;
+      :Export reports as PDF/CSV/XLSX;
+      #E8F5E9:DB READ: all module tables (aggregated)\nDB R/W: **report_configurations**\n**generated_reports**\nDB READ: **ai_generated_summaries**;
+
+    fork again
+      :**User & Role Management**|
+      :View all user accounts;
+      :Create/deactivate accounts;
+      :Assign/revoke roles;
+      :Configure role permissions;
+      :Reset user passwords;
+      :Enable/disable 2FA policy;
+      #E8F5E9:DB R/W: **users**, **user_roles**\n**roles**, **role_permissions**;
+
+    fork again
+      :**System Configuration**|
+      :Enable/disable system modules;
+      :Configure system-wide settings;
+      :Manage departments;
+      :Set data retention policies;
+      #E8F5E9:DB R/W: **system_modules**\n**departments**;
+
+    fork again
+      :**Audit Log Viewer**|
+      :Search/filter audit entries
+      (by user, module, date, action);
+      :Verify hash-chain integrity;
+      :Export audit logs for compliance;
+      note right
+        **Write-once**: Admin
+        cannot delete or modify
+        any audit log entries
+      end note
+      #E8F5E9:DB READ: **audit_logs**\n(hash-chain verified);
+    end fork
+  endswitch
+}
+
+' ============================================================
+' CROSS-CUTTING: IoT (see flowchart_iot.puml)
+' ============================================================
+partition "**3. IoT Check-In Subsystem**\n//→ See flowchart_iot.puml for full detail//" #F5F5F5 {
+  :Student arrives at clinic;
+  if (Network available?) then (yes)
+    :Scan QR Code / RFID;
+    #E8F5E9:DB READ: **students**\n(lookup by qr_code / rfid_tag);
+    :Display role-appropriate info;
+    #E8F5E9:DB WRITE: **consultations**\n(check_in_method = qr/rfid);
+  else (no)
+    #E8F5E9:DB WRITE: **offline_checkin_buffer**\n(sync_status = pending);
+    :Sync when connectivity restored;
+  endif
+}
+
+' ============================================================
+' CROSS-CUTTING: AI (see flowchart_ai.puml)
+' ============================================================
+partition "**4. AI Services Layer**\n//→ See flowchart_ai.puml for full detail//" #F5F5F5 {
+  fork
+    :A: Smart Triage|
+    #E8F5E9:DB R/W: **ai_triage_predictions**;
+  fork again
+    :B: Inventory Forecast|
+    #E8F5E9:DB R/W: **ai_inventory_forecasts**;
+  fork again
+    :C: Risk Scoring|
+    #E8F5E9:DB R/W: **ai_risk_scores**;
+  fork again
+    :D: Smart Scheduling|
+    #E8F5E9:DB R/W: **scheduling_analytics**;
+  fork again
+    :E: Report Summarizer|
+    #E8F5E9:DB R/W: **ai_generated_summaries**;
+  fork again
+    :F: Conflict Detection|
+    #E8F5E9:DB R/W: **volunteer_workload_scores**;
+  end fork
+}
+
+' ============================================================
+' AUDIT TRAIL
+' ============================================================
+partition "**5. Reporting & Audit Trail**" #F5F5F5 {
+  #E8F5E9:DB WRITE: **audit_logs**\n(every operation → hash + previous_hash);
+  note right
+    **Write-once** — no role can
+    delete or modify entries.
+    Hash-chain integrity verified
+    by scheduled check.
+  end note
+  #E8F5E9:DB WRITE: **generated_reports**;
+  :Export as PDF / CSV / XLSX;
+}
+
+stop
+
+' ============================================================
+' LEGEND
+' ============================================================
+legend bottom
+  | Color | Meaning |
+  | <#E3F2FD> | Application Logic |
+  | <#E8F5E9> | **Database Operation** (READ / WRITE / UPDATE) |
+  | <#FFF3E0> | Decision Point |
+  | <#F3E5F5> | Note / Annotation (Role Permissions) |
+  | <#FCE4EC> | AI Services |
+  | <#FFF8E1> | IoT Subsystem |
+  ---
+  **Separate Module Flowcharts:**
+  • flowchart_auth.puml — Authentication & RBAC
+  • flowchart_clinic.puml — Clinic Management Core
+  • flowchart_inventory.puml — Medicine Inventory
+  • flowchart_counselling.puml — Counselling Core
+  • flowchart_pasimeo.puml — PASIMEO Outreach Core
+  • flowchart_iot.puml — IoT Check-In Subsystem
+  • flowchart_ai.puml — AI Features (all 6)
+end legend
+
+@enduml

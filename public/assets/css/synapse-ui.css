@@ -1,0 +1,2255 @@
+/* ============================================================================
+   SYNAPSE UI Library
+   ----------------------------------------------------------------------------
+   Reusable component styles for the SYNAPSE web application.
+   Loaded once in the main layout. All components are self-contained and
+   scoped via class names so they never collide with the rest of the app.
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   UTILITIES
+   --------------------------------------------------------------------------- */
+
+/* Screen-reader-only content. Visually hidden but still announced. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ----------------------------------------------------------------------------
+   1. DIALOGS / MODALS
+   ----------------------------------------------------------------------------
+   Backdrop + centered card. Opened via the global synapse.dialog helper.
+   <button data-synapse-open="myDialogId">Open</button>
+   <div class="syn-dialog" id="myDialogId" hidden>...</div>
+   --------------------------------------------------------------------------- */
+.syn-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+}
+
+.syn-dialog-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.syn-dialog {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 480px;
+    max-height: calc(100vh - 3rem);
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.95) translateY(8px);
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+.syn-dialog-backdrop.is-open .syn-dialog {
+    transform: scale(1) translateY(0);
+}
+
+.syn-dialog--wide {
+    max-width: 720px;
+}
+
+.syn-dialog--danger .syn-dialog-header {
+    background: linear-gradient(135deg, #FEF2F2, #FEE2E2);
+    color: var(--primary-800, #5A1722);
+}
+
+.syn-dialog-header {
+    padding: 1.5rem 1.75rem 1rem;
+    border-bottom: 1px solid var(--gray-100, #F3F4F6);
+}
+
+.syn-dialog-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--gray-900, #111827);
+    margin: 0 0 0.25rem 0;
+    letter-spacing: -0.01em;
+}
+
+.syn-dialog-desc {
+    font-size: 0.8rem;
+    color: var(--gray-500, #6B7280);
+    margin: 0;
+    font-family: var(--font-mono, monospace);
+    word-break: break-all;
+}
+
+.syn-dialog-body {
+    padding: 1.5rem 1.75rem;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    font-size: 0.875rem;
+    color: var(--gray-700, #374151);
+    line-height: 1.6;
+}
+
+/* When a <form> is converted to a dialog, it sits between the header and
+   the footer of the dialog. Make it participate in the dialog's flex column
+   so the body can scroll inside it when content is tall. */
+.syn-dialog > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+}
+
+.syn-dialog > form > .syn-dialog-body {
+    /* Override flex:1 above so it expands within the form flex column */
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.syn-dialog-body p {
+    margin: 0 0 0.75rem 0;
+}
+
+.syn-dialog-body p:last-child {
+    margin-bottom: 0;
+}
+
+.syn-dialog-alert {
+    margin: 1.25rem 1.75rem 0.5rem;
+    padding: 0.85rem 1rem;
+    background: #FEF3C7;
+    border: 1px solid #FDE68A;
+    border-radius: 8px;
+    color: #92400E;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    display: flex;
+    gap: 0.6rem;
+}
+
+.syn-dialog-alert i {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    color: #D97706;
+}
+
+.syn-dialog-alert strong {
+    display: block;
+    margin-bottom: 0.15rem;
+    color: #78350F;
+}
+
+.syn-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1rem 1.75rem 1.5rem;
+    background: var(--gray-50, #F9FAFB);
+    border-top: 1px solid var(--gray-100, #F3F4F6);
+}
+
+/* Dialog-friendly input row (for the token-style "copy this" field) */
+.syn-dialog-input-row {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--gray-300, #D1D5DB);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--gray-50, #F9FAFB);
+    margin: 0.5rem 0;
+}
+
+.syn-dialog-input-row input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.7rem 0.9rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.825rem;
+    color: var(--gray-800, #1F2937);
+    outline: none;
+}
+
+.syn-dialog-input-row input:focus {
+    background: white;
+}
+
+.syn-dialog-input-row button {
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--gray-200, #E5E7EB);
+    color: var(--gray-500, #6B7280);
+    padding: 0 0.85rem;
+    cursor: pointer;
+    transition: all 150ms ease;
+}
+
+.syn-dialog-input-row button:hover {
+    background: var(--gray-100, #F3F4F6);
+    color: var(--gray-900, #111827);
+}
+
+.syn-dialog-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gray-700, #374151);
+    margin-bottom: 0.4rem;
+}
+
+/* ----------------------------------------------------------------------------
+   2. TOASTS
+   ----------------------------------------------------------------------------
+   Bottom-right stack of notifications. Stack: data-synapse-toast="success".
+   Variants: success, error, warning, info.
+   --------------------------------------------------------------------------- */
+.syn-toast-stack {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    z-index: 1100;
+    max-width: 380px;
+    pointer-events: none;
+}
+
+.syn-toast {
+    background: white;
+    border: 1px solid var(--gray-200, #E5E7EB);
+    border-radius: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-width: 280px;
+    max-width: 380px;
+    pointer-events: auto;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 300ms ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.syn-toast.is-visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.syn-toast::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+}
+
+.syn-toast--success::before { background: #10B981; }
+.syn-toast--error::before   { background: #EF4444; }
+.syn-toast--warning::before { background: #F59E0B; }
+.syn-toast--info::before    { background: #3B82F6; }
+
+.syn-toast-icon {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 0.85rem;
+}
+
+.syn-toast--success .syn-toast-icon { background: #D1FAE5; color: #065F46; }
+.syn-toast--error   .syn-toast-icon { background: #FEE2E2; color: #991B1B; }
+.syn-toast--warning .syn-toast-icon { background: #FEF3C7; color: #92400E; }
+.syn-toast--info    .syn-toast-icon { background: #DBEAFE; color: #1E40AF; }
+
+.syn-toast-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.syn-toast-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gray-900, #111827);
+    margin: 0 0 0.15rem 0;
+}
+
+.syn-toast-message {
+    font-size: 0.78rem;
+    color: var(--gray-600, #4B5563);
+    line-height: 1.45;
+    margin: 0;
+    word-wrap: break-word;
+}
+
+.syn-toast-close {
+    background: none;
+    border: none;
+    color: var(--gray-400, #9CA3AF);
+    cursor: pointer;
+    padding: 0.1rem 0.2rem;
+    font-size: 0.85rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 150ms ease;
+}
+
+.syn-toast-close:hover {
+    color: var(--gray-700, #374151);
+}
+
+.syn-toast-progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--gray-100, #F3F4F6);
+    overflow: hidden;
+}
+
+.syn-toast-progress::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: currentColor;
+    animation: syn-toast-progress 4s linear forwards;
+}
+
+.syn-toast--success .syn-toast-progress { color: #10B981; }
+.syn-toast--error   .syn-toast-progress { color: #EF4444; }
+.syn-toast--warning .syn-toast-progress { color: #F59E0B; }
+.syn-toast--info    .syn-toast-progress { color: #3B82F6; }
+
+@keyframes syn-toast-progress {
+    from { width: 100%; }
+    to   { width: 0%; }
+}
+
+/* ----------------------------------------------------------------------------
+   3. LOADING SPINNERS
+   ----------------------------------------------------------------------------
+   Three sizes: sm (14px), md (20px), lg (32px).
+   Use: <div class="syn-spinner syn-spinner--md"></div>
+   --------------------------------------------------------------------------- */
+.syn-spinner {
+    display: inline-block;
+    border: 2px solid var(--gray-200, #E5E7EB);
+    border-top-color: var(--primary-600, #9D2235);
+    border-radius: 50%;
+    animation: syn-spin 0.7s linear infinite;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+.syn-spinner--sm { width: 14px; height: 14px; border-width: 2px; }
+.syn-spinner--md { width: 20px; height: 20px; border-width: 2px; }
+.syn-spinner--lg { width: 32px; height: 32px; border-width: 3px; }
+.syn-spinner--xl { width: 48px; height: 48px; border-width: 4px; }
+
+.syn-spinner--light {
+    border-color: rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+}
+
+/* Button with inline spinner (replaces button content while loading) */
+.syn-btn-loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.syn-btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -7px;
+    margin-left: -7px;
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: syn-spin 0.7s linear infinite;
+    color: white;
+}
+
+.syn-btn-loading.syn-btn-loading--dark::after {
+    color: var(--gray-700, #374151);
+}
+
+@keyframes syn-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Full-page overlay spinner */
+.syn-page-loader {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    display: grid;
+    place-items: center;
+    z-index: 2000;
+}
+
+/* ----------------------------------------------------------------------------
+   4. SKELETON LOADING
+   ----------------------------------------------------------------------------
+   Use: <div class="syn-skel syn-skel--text"></div>
+   Variants: text, title, avatar, thumb, block, card.
+   --------------------------------------------------------------------------- */
+.syn-skel {
+    background: linear-gradient(90deg,
+        var(--gray-200, #E5E7EB) 0%,
+        var(--gray-100, #F3F4F6) 50%,
+        var(--gray-200, #E5E7EB) 100%);
+    background-size: 200% 100%;
+    animation: syn-skel-shimmer 1.4s ease-in-out infinite;
+    border-radius: 6px;
+    display: block;
+    color: transparent;
+    user-select: none;
+}
+
+.syn-skel--text  { height: 0.75rem;  width: 100%;        margin: 0.35rem 0; }
+.syn-skel--line  { height: 0.7rem;   width: 80%;         margin: 0.3rem 0; }
+.syn-skel--title { height: 1.4rem;   width: 60%;         border-radius: 8px; }
+.syn-skel--avatar{ width: 40px;      height: 40px;       border-radius: 50%; flex-shrink: 0; }
+.syn-skel--thumb { width: 64px;      height: 64px;       border-radius: 8px; }
+.syn-skel--block { height: 6rem;     width: 100%;        border-radius: 8px; }
+.syn-skel--card  { height: 9rem;     width: 100%;        border-radius: 12px; }
+
+.syn-skel-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+}
+
+.syn-skel-card {
+    background: white;
+    border: 1px solid var(--gray-200, #E5E7EB);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+@keyframes syn-skel-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ----------------------------------------------------------------------------
+   5. PAGINATION
+   ----------------------------------------------------------------------------
+   Universal pagination component for every paginated table in the app.
+   Use via the PHP helper in app/Helpers/ui_pagination_helper.php:
+       <?= pagination_links($pager) ?>
+   Or build a wrapper around an array:
+       <?= pagination_links(compact('current','total','perPage','totalRec'), '/admin/users') ?>
+   Or pure HTML: <nav class="syn-pagination">...</nav>
+   --------------------------------------------------------------------------- */
+
+.syn-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    background: var(--gray-50, #F9FAFB);
+    border-top: 1px solid var(--gray-200, #E5E7EB);
+    border-bottom-left-radius: var(--radius-md, 10px);
+    border-bottom-right-radius: var(--radius-md, 10px);
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+}
+
+/* ---- Info line ("Showing 1–20 of 142") ---- */
+.syn-pagination-info {
+    font-size: 0.825rem;
+    color: var(--gray-600, #4B5563);
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.syn-pagination-info strong {
+    font-weight: 600;
+    color: var(--gray-800, #1F2937);
+}
+
+/* ---- Per-page selector ---- */
+.syn-pagination-size {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--gray-600, #4B5563);
+}
+.syn-pagination-size select {
+    height: 30px;
+    padding: 0 0.5rem;
+    font: inherit;
+    font-size: 0.8rem;
+    color: var(--gray-800, #1F2937);
+    background: white;
+    border: 1px solid var(--gray-200, #E5E7EB);
+    border-radius: var(--radius-sm, 6px);
+    cursor: pointer;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.syn-pagination-size select:hover {
+    border-color: var(--gray-300, #D1D5DB);
+}
+.syn-pagination-size select:focus-visible {
+    outline: none;
+    border-color: var(--primary-500, #B8304A);
+    box-shadow: 0 0 0 3px rgba(184, 48, 74, 0.18);
+}
+
+/* ---- Page list ---- */
+.syn-pagination-list {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.syn-pagination-item {
+    display: inline-flex;
+}
+
+/* ---- Each control (button-shaped) ---- */
+.syn-pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-width: 34px;
+    height: 32px;
+    padding: 0 0.65rem;
+    font-size: 0.825rem;
+    font-weight: 500;
+    font-family: inherit;
+    line-height: 1;
+    color: var(--gray-700, #374151);
+    background: white;
+    border: 1px solid var(--gray-200, #E5E7EB);
+    border-radius: var(--radius-sm, 6px);
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 150ms ease,
+                border-color 150ms ease,
+                color 150ms ease,
+                box-shadow 150ms ease,
+                transform 80ms ease;
+}
+.syn-pagination-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(184, 48, 74, 0.18);
+    border-color: var(--primary-500, #B8304A);
+}
+.syn-pagination-link:hover:not(.is-disabled):not(.is-active) {
+    background: var(--primary-50, #FDF2F4);
+    border-color: var(--primary-200, #F5BCC6);
+    color: var(--primary-700, #7B1F2C);
+}
+.syn-pagination-link:active:not(.is-disabled):not(.is-active) {
+    transform: scale(0.97);
+}
+
+/* ---- Current page ---- */
+.syn-pagination-link.is-active {
+    background: var(--primary-600, #9D2235);
+    border-color: var(--primary-600, #9D2235);
+    color: white;
+    cursor: default;
+    box-shadow: 0 1px 2px rgba(157, 34, 53, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    font-weight: 600;
+}
+.syn-pagination-link.is-active:hover { /* hover state locked while active */
+    background: var(--primary-600, #9D2235);
+    border-color: var(--primary-600, #9D2235);
+    color: white;
+}
+
+/* ---- Disabled (first/prev at page 1, next/last at last page) ---- */
+.syn-pagination-link.is-disabled,
+.syn-pagination-link[aria-disabled="true"] {
+    color: var(--gray-300, #D1D5DB);
+    cursor: not-allowed;
+    background: var(--gray-50, #F9FAFB);
+    border-color: var(--gray-100, #F3F4F6);
+}
+.syn-pagination-link.is-disabled:hover {
+    /* No hover on disabled */
+    background: var(--gray-50, #F9FAFB);
+    border-color: var(--gray-100, #F3F4F6);
+    color: var(--gray-300, #D1D5DB);
+}
+
+/* ---- Compact icon-only buttons (first / prev / next / last) ---- */
+.syn-pagination-link.syn-pagination-edge {
+    padding: 0 0.45rem;
+    min-width: 32px;
+}
+.syn-pagination-link.syn-pagination-edge i {
+    font-size: 0.7rem;
+    line-height: 1;
+}
+
+/* ---- Ellipsis ("…") ---- */
+.syn-pagination-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 32px;
+    color: var(--gray-400, #9CA3AF);
+    font-size: 0.825rem;
+    user-select: none;
+    letter-spacing: 0.1em;
+}
+
+/* ---- Mobile / narrow: stack info above buttons ---- */
+@media (max-width: 640px) {
+    .syn-pagination {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    .syn-pagination-info {
+        text-align: center;
+    }
+    .syn-pagination-list {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+/* ---- Reduced motion: kill the press-scale animation ---- */
+@media (prefers-reduced-motion: reduce) {
+    .syn-pagination-link {
+        transition: background-color 120ms ease,
+                    border-color 120ms ease,
+                    color 120ms ease,
+                    box-shadow 120ms ease;
+    }
+    .syn-pagination-link:active:not(.is-disabled):not(.is-active) {
+        transform: none;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   6. DATE / TIME PICKER OVERRIDES
+   ----------------------------------------------------------------------------
+   Compact, brand-themed overrides for flatpickr. We trim flatpickr's
+   generous default spacing so the calendar fits the SYNAPSE design system
+   (which uses tight 0.5–0.75rem padding throughout).
+   --------------------------------------------------------------------------- */
+.flatpickr-calendar {
+    border-radius: 10px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                0 8px 10px -6px rgba(0, 0, 0, 0.05),
+                0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+    border: none !important;
+    padding: 0.5rem !important;
+    font-family: inherit !important;
+    font-size: 0.8rem !important;
+    /* 7 days × 32px + 0.5rem padding on each side = 240px exactly.
+       min-width guarantees the calendar never collapses to 1-row mode
+       regardless of input width. */
+    min-width: 240px !important;
+    width: 240px !important;
+    box-sizing: border-box !important;
+}
+
+/* ---- Calendar grid (compact) ---- */
+.flatpickr-months {
+    padding-top: 0.15rem;
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year {
+    color: var(--gray-900, #111827) !important;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0;
+}
+
+.flatpickr-current-month {
+    padding-top: 0.1rem;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    font-size: 0.85rem !important;
+}
+
+.flatpickr-current-month input.cur-year {
+    font-size: 0.85rem !important;
+}
+
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+    padding: 0.5rem;
+    height: auto;
+}
+
+.flatpickr-months .flatpickr-prev-month svg,
+.flatpickr-months .flatpickr-next-month svg {
+    fill: var(--gray-500, #6B7280) !important;
+    width: 12px;
+    height: 12px;
+}
+
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+    fill: var(--primary-600, #9D2235) !important;
+}
+
+.flatpickr-weekdays {
+    height: 28px !important;
+    margin-top: 0.25rem;
+}
+
+.flatpickr-weekday {
+    color: var(--gray-500, #6B7280) !important;
+    font-weight: 600;
+    font-size: 0.65rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    height: 28px !important;
+    line-height: 28px !important;
+}
+
+.flatpickr-days,
+.daysContainer,
+.dayContainer {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+}
+
+/* flatpickr positions each day with `left: X%` (absolute). We rely on
+   that and force each day to a fixed square size. The calendar is
+   240px wide → (240 - 16 padding) / 7 = ~32px per day → use 32px square. */
+.flatpickr-day {
+    border-radius: 6px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    max-width: 32px !important;
+    width: 32px !important;
+    font-size: 0.8rem;
+    margin: 1px 0 !important;
+    color: var(--gray-700, #374151);
+    flex-basis: auto !important;
+    aspect-ratio: 1 / 1;          /* belt-and-suspenders: keep cell square */
+    box-sizing: border-box !important;
+    /* No horizontal margin so 7 cells × 32px = 224px fits in the 224px
+       content area (240 - 16 padding). 1px vertical breathing room only. */
+    margin: 1px 0 !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    background: var(--primary-600, #9D2235) !important;
+    border-color: var(--primary-600, #9D2235) !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+.flatpickr-day.inRange {
+    background: var(--primary-100, #FBE0E5) !important;
+    box-shadow: -5px 0 0 var(--primary-100, #FBE0E5),
+                 5px 0 0 var(--primary-100, #FBE0E5) !important;
+    color: var(--primary-800, #5A1722) !important;
+}
+
+.flatpickr-day:hover,
+.flatpickr-day.prevMonthDay:hover,
+.flatpickr-day.nextMonthDay:hover {
+    background: var(--primary-50, #FDF2F4) !important;
+    color: var(--primary-800, #5A1722) !important;
+}
+
+.flatpickr-day.today {
+    border-color: var(--primary-300, #EA8E9F) !important;
+    color: var(--primary-700, #7B1F2C) !important;
+    font-weight: 600;
+}
+
+.flatpickr-day.today.selected {
+    background: var(--primary-600, #9D2235) !important;
+    color: white !important;
+}
+
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
+    color: var(--gray-300, #D1D5DB) !important;
+}
+
+.flatpickr-innerContainer,
+.flatpickr-rContainer {
+    padding: 0 !important;
+}
+
+/* ---- Native-overlay calendar (popover) ----
+   Our customization of flatpickr treats the date picker exactly like
+   a native `<input type="date">`: when the user clicks/focuses the
+   input, a system-level popover overlay appears, positioned absolutely
+   relative to the input, ABOVE all page content. It does NOT push
+   surrounding content, it does NOT participate in form layouts, and
+   it scrolls with the input (repositioned via JS on container scroll).
+
+   The calendar is appended to `document.body` (see synapse-ui.js) so
+   it escapes any `overflow: hidden` ancestor (.page-content scroll
+   container) and any stacking-context traps (dialog backdrops).
+
+   No special CSS needed for `.static` — we reverted to flatpickr's
+   default `position: absolute` behaviour. The only thing we need to
+   tune is z-index: the calendar must sit above the page header, the
+   sidebar, and any dialog backdrop, so users can always interact
+   with it after clicking the input. */
+.flatpickr-calendar {
+    /* Sit above sidebar (z-index: 100), header (z-index: 50), and
+       dialog backdrop (no z-index set but renders on top by default
+       in the DOM flow). 9000 is a comfortable safety margin. */
+    z-index: 9000 !important;
+}
+
+/* ---- Time picker (compact + numeric only) ---- */
+.flatpickr-time {
+    border-top: 1px solid var(--gray-200, #E5E7EB) !important;
+    padding: 0.25rem 0 !important;
+    max-height: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.flatpickr-time::before,
+.flatpickr-time::after {
+    display: none !important;
+}
+
+.flatpickr-time input,
+.flatpickr-time .flatpickr-am-pm {
+    color: var(--gray-900, #111827) !important;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: none;
+    background: transparent;
+    height: 32px;
+    padding: 0 0.4rem;
+    border-radius: 6px;
+    transition: background 150ms ease;
+    /* Prevent letter input — mobile keyboard */
+    -moz-appearance: textfield;
+}
+
+.flatpickr-time input::-webkit-outer-spin-button,
+.flatpickr-time input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.flatpickr-time input:hover,
+.flatpickr-time .flatpickr-am-pm:hover,
+.flatpickr-time input:focus,
+.flatpickr-time .flatpickr-am-pm:focus {
+    background: var(--primary-50, #FDF2F4) !important;
+    color: var(--primary-800, #5A1722) !important;
+}
+
+.numInputWrapper {
+    border-radius: 6px;
+    transition: background 150ms ease;
+}
+
+.numInputWrapper:hover,
+.numInputWrapper:focus-within {
+    background: var(--primary-50, #FDF2F4) !important;
+}
+
+.numInputWrapper span.arrowUp,
+.numInputWrapper span.arrowDown {
+    border-bottom-color: var(--gray-400, #9CA3AF) !important;
+    border-top-color: var(--gray-400, #9CA3AF) !important;
+    opacity: 0.6;
+}
+
+.numInputWrapper span.arrowUp:hover,
+.numInputWrapper span.arrowDown:hover {
+    border-bottom-color: var(--primary-600, #9D2235) !important;
+    border-top-color: var(--primary-600, #9D2235) !important;
+    opacity: 1;
+}
+
+.flatpickr-time-separator {
+    color: var(--gray-400, #9CA3AF) !important;
+    font-weight: 400;
+}
+
+/* Hide the AM/PM toggle in 24-hour mode (cleaner) */
+.flatpickr-time.has-separator .flatpickr-am-pm {
+    display: none;
+}
+
+/* ---- Range picker ---- */
+.flatpickr-day.startRange + .endRange:not(.selected),
+.flatpickr-day.endRange + .startRange:not(.selected) {
+    box-shadow: none !important;
+}
+
+/* ---- Inline display when noCalendar ---- */
+.flatpickr-time.noCalendar {
+    border-top: none !important;
+    padding: 0.5rem 0 !important;
+}
+
+/* Input wrapper that flatpickr creates around the input */
+.syn-datepicker {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--gray-300, #D1D5DB);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--gray-900, #111827);
+    background: white;
+    cursor: pointer;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.syn-datepicker:focus {
+    outline: none;
+    border-color: var(--primary-600, #9D2235);
+    box-shadow: 0 0 0 3px rgba(157, 34, 53, 0.12);
+}
+
+.syn-datepicker::-webkit-calendar-picker-indicator {
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+/* ----------------------------------------------------------------------------
+   6.5. NATIVE <select> FIELDS & CUSTOM DROPDOWN MENUS
+   ----------------------------------------------------------------------------
+   Two flavors of "dropdown" UI:
+   1. .syn-select  — auto-styled native <select> (no JS needed, no markup change)
+   2. .syn-dropdown — rich custom popover (search, icons, multi-select)
+
+   All <select> elements inside the main app also get the .syn-select look
+   by default, so no view changes are required.
+   --------------------------------------------------------------------------- */
+
+/* === Native <select> styling — opt-in via .syn-select class === */
+/* Only elements with class="syn-select" get the chevron + brand styling.
+   Elements with data-synapse-dropdown get fully replaced by the custom
+   dropdown component (see .syn-dropdown below). Plain <select> elements
+   without either class use the browser default. */
+
+/* ------------------------------------------------------------
+   Field-height tokens
+   ------------------------------------------------------------
+   Every input, select, and textarea uses these tokens so they
+   line up perfectly side-by-side. Without tokens, browsers use
+   different default paddings + line-heights and the row of a
+   form has visibly mismatched heights.
+   --syn-field-height = total box height (border included)
+   --syn-field-padding-x = horizontal padding inside the field
+   --syn-field-font-size = font-size of the input text */
+:root {
+    --syn-field-height: 38px;
+    --syn-field-padding-x: 0.75rem;
+    --syn-field-padding-y: 0.45rem;
+    --syn-field-font-size: 0.875rem;
+    --syn-field-radius: 8px;
+}
+
+/* COMPACT UI (90%) override — synced from the layout's main.php.
+   The <html> font-size of 14.4px already scales all rem-based
+   padding/font/gap values; the four tokens below additionally
+   scale the px-based field chrome so forms get visibly smaller
+   when the user enables "Compact UI" in Settings. */
+html.syn-compact-ui {
+    --syn-field-height:    34.2px;             /* 38 × 0.9  */
+    --syn-field-padding-y: 0.405rem;           /* 0.45 × 0.9 (also scales via 14.4px root but keep explicit for clarity) */
+}
+
+.form-control,
+.syn-select {
+    width: 100%;
+    min-height: var(--syn-field-height);
+    padding: var(--syn-field-padding-y) var(--syn-field-padding-x);
+    border: 1px solid var(--gray-300, #D1D5DB);
+    border-radius: var(--syn-field-radius);
+    background-color: white;
+    font-family: inherit;
+    font-size: var(--syn-field-font-size);
+    line-height: 1.4;
+    color: var(--gray-900, #111827);
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+    box-sizing: border-box;
+}
+
+.form-control:hover,
+.syn-select:hover {
+    border-color: var(--gray-400, #9CA3AF);
+}
+
+.form-control:focus,
+.syn-select:focus {
+    outline: none;
+    border-color: var(--primary-600, #9D2235);
+    box-shadow: 0 0 0 3px rgba(157, 34, 53, 0.12);
+}
+
+.form-control:disabled,
+.syn-select:disabled {
+    background-color: var(--gray-50, #F9FAFB);
+    color: var(--gray-400, #9CA3AF);
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+.form-control[type="file"] {
+    padding: 0.3rem 0.5rem;
+}
+
+textarea.form-control {
+    min-height: calc(var(--syn-field-height) * 2);
+    line-height: 1.5;
+}
+
+.syn-select {
+    /* Override the right-side padding to leave room for the chevron.
+       Left/vertical padding still matches .form-control. */
+    padding-right: 2.2rem;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'><path d='M3 4.5L6 7.5L9 4.5' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 14px 14px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-origin: content-box;
+}
+
+.syn-select:hover {
+    border-color: var(--gray-400, #9CA3AF);
+}
+
+.syn-select:focus {
+    outline: none;
+    border-color: var(--primary-600, #9D2235);
+    box-shadow: 0 0 0 3px rgba(157, 34, 53, 0.12);
+}
+
+.syn-select:disabled {
+    background-color: var(--gray-50, #F9FAFB);
+    color: var(--gray-400, #9CA3AF);
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+.syn-select--sm {
+    min-height: 30px;
+    padding: 0.25rem 1.8rem 0.25rem 0.6rem;
+    font-size: 0.78rem;
+    background-position: right 0.55rem center;
+    background-size: 12px 12px;
+}
+
+.syn-select--lg {
+    min-height: 46px;
+    padding: 0.65rem 2.5rem 0.65rem 1rem;
+    font-size: 0.95rem;
+    background-position: right 1rem center;
+    background-size: 16px 16px;
+}
+
+/* Apply the unified field style to bare <select> elements that don't
+   have either .syn-select or data-synapse-dropdown. This keeps the
+   default browser look if the user explicitly opts out, but in practice
+   every select in the app should be styled consistently with text
+   inputs. We use :where() to keep specificity at 0. */
+:where(.app-layout, .syn-dialog, .syn-page-loading) select:not(.syn-select):not([data-synapse-dropdown]):not([data-skip-select-style]) {
+    padding-right: 2.2rem;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'><path d='M3 4.5L6 7.5L9 4.5' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 14px 14px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-origin: content-box;
+}
+
+/* === Custom dropdown (button + popover) === */
+.syn-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.syn-dropdown-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.85rem;
+    background: white;
+    border: 1px solid var(--gray-300, #D1D5DB);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--gray-900, #111827);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.syn-dropdown-trigger:hover {
+    border-color: var(--gray-400, #9CA3AF);
+}
+
+.syn-dropdown-trigger:focus,
+.syn-dropdown.is-open .syn-dropdown-trigger {
+    outline: none;
+    border-color: var(--primary-600, #9D2235);
+    box-shadow: 0 0 0 3px rgba(157, 34, 53, 0.12);
+}
+
+.syn-dropdown-trigger .syn-dropdown-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.syn-dropdown-trigger .syn-dropdown-label.is-placeholder {
+    color: var(--gray-400, #9CA3AF);
+}
+
+.syn-dropdown-trigger .syn-dropdown-icon {
+    color: var(--gray-400, #9CA3AF);
+    font-size: 0.7rem;
+    transition: transform 200ms ease;
+    flex-shrink: 0;
+}
+
+.syn-dropdown.is-open .syn-dropdown-trigger .syn-dropdown-icon {
+    transform: rotate(180deg);
+    color: var(--primary-600, #9D2235);
+}
+
+.syn-dropdown.is-disabled .syn-dropdown-trigger {
+    background: var(--gray-50, #F9FAFB);
+    color: var(--gray-400, #9CA3AF);
+    cursor: not-allowed;
+}
+
+/* The popover panel */
+.syn-dropdown-menu {
+    /* Default state: hidden, sits inside the wrap (for non-portaled use
+       cases like the user-menu trigger). The JS portals the menu to
+       <body> on open and sets position:fixed + top/left dynamically. */
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    /* Width is independent from the trigger field. We:
+       - start at 240px (roomy enough for option labels)
+       - grow to fit content if any option is wider than that
+       - cap at 420px so we don't sprawl on wide forms
+     This is intentional — the user explicitly asked for the menu width
+     to NOT match the dropdown field. */
+    width: max-content;
+    min-width: 240px;
+    max-width: 420px;
+    /* High z-index so the portaled menu sits above any local stacking
+       context (modals, sticky headers, sidebars). */
+    z-index: 9999;
+    background: white;
+    border: 1px solid var(--gray-200, #E5E7EB);
+    border-radius: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                0 8px 10px -6px rgba(0, 0, 0, 0.05),
+                0 0 0 1px rgba(0, 0, 0, 0.04);
+    padding: 0.35rem;
+    /* Only cap height for very tall lists; smaller lists show without scroll.
+       overflow-x must be visible so long option labels can extend beyond
+       the menu width if needed — better than clipping or horizontal scroll. */
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: visible;
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 150ms ease, transform 150ms ease;
+}
+
+/* When the menu lives inside the wrap (default, no portal), open state is
+   driven by the .is-open class on the parent .syn-dropdown. */
+.syn-dropdown.is-open > .syn-dropdown-menu {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* When portaled to <body>, the menu is always visible — its visibility is
+   controlled inline by the JS positioning logic. The .is-portaled class is
+   added on open so we can keep the .syn-dropdown.is-open menu hidden. */
+.syn-dropdown-menu.is-portaled {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+}
+
+/* If portaled, hide the duplicate menu that stays inside the wrap. */
+.syn-dropdown.is-open > .syn-dropdown-menu.is-portaled ~ .syn-dropdown-menu,
+.syn-dropdown-menu.is-portaled ~ .syn-dropdown-menu {
+    display: none;
+}
+
+/* Search input inside the dropdown */
+.syn-dropdown-search {
+    width: 100%;
+    padding: 0.45rem 0.65rem 0.45rem 2rem;
+    border: 1px solid var(--gray-200, #E5E7EB);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.825rem;
+    color: var(--gray-900, #111827);
+    background: var(--gray-50, #F9FAFB) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>") no-repeat 0.65rem center;
+    background-size: 12px 12px;
+    margin: 0.1rem 0 0.35rem 0;
+    outline: none;
+    transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.syn-dropdown-search:focus {
+    border-color: var(--primary-600, #9D2235);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(157, 34, 53, 0.1);
+}
+
+/* Options list */
+.syn-dropdown-options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.syn-dropdown-option {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.825rem;
+    color: var(--gray-700, #374151);
+    cursor: pointer;
+    user-select: none;
+    transition: background 100ms ease, color 100ms ease;
+}
+
+.syn-dropdown-option:hover,
+.syn-dropdown-option.is-highlighted {
+    background: var(--primary-50, #FDF2F4);
+    color: var(--primary-800, #5A1722);
+}
+
+.syn-dropdown-option.is-selected {
+    background: var(--primary-100, #FBE0E5);
+    color: var(--primary-800, #5A1722);
+    font-weight: 600;
+}
+
+.syn-dropdown-option .syn-dropdown-check {
+    margin-left: auto;
+    color: var(--primary-600, #9D2235);
+    font-size: 0.75rem;
+    opacity: 0;
+}
+
+.syn-dropdown-option.is-selected .syn-dropdown-check {
+    opacity: 1;
+}
+
+.syn-dropdown-option.is-disabled {
+    color: var(--gray-300, #D1D5DB);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.syn-dropdown-option .syn-dropdown-option-icon {
+    color: var(--gray-500, #6B7280);
+    font-size: 0.8rem;
+    width: 16px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.syn-dropdown-option.is-selected .syn-dropdown-option-icon,
+.syn-dropdown-option:hover .syn-dropdown-option-icon {
+    color: var(--primary-600, #9D2235);
+}
+
+.syn-dropdown-empty {
+    padding: 0.85rem 0.75rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--gray-500, #6B7280);
+}
+
+.syn-dropdown-divider {
+    height: 1px;
+    background: var(--gray-200, #E5E7EB);
+    margin: 0.25rem 0;
+}
+
+.syn-dropdown-header {
+    padding: 0.4rem 0.65rem 0.25rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-500, #6B7280);
+}
+
+/* Multi-select chip layout */
+.syn-dropdown-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+}
+
+.syn-dropdown-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.5rem;
+    background: var(--primary-50, #FDF2F4);
+    color: var(--primary-800, #5A1722);
+    border: 1px solid var(--primary-100, #FBE0E5);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.3;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.syn-dropdown-chip-remove {
+    background: none;
+    border: none;
+    color: var(--primary-600, #9D2235);
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    font-size: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.syn-dropdown-chip-remove:hover {
+    color: var(--primary-800, #5A1722);
+}
+
+/* Scrollbar inside the menu */
+.syn-dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.syn-dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.syn-dropdown-menu::-webkit-scrollbar-thumb {
+    background: var(--gray-300, #D1D5DB);
+    border-radius: 3px;
+}
+
+.syn-dropdown-menu {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300, #D1D5DB) transparent;
+}
+
+/* ----------------------------------------------------------------------------
+   7. SHARED BUTTONS (used by dialogs, pagination, etc.)
+   --------------------------------------------------------------------------- */
+.syn-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 150ms ease;
+    text-decoration: none;
+    white-space: nowrap;
+    font-family: inherit;
+    line-height: 1.2;
+}
+
+.syn-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.syn-btn--primary {
+    background: var(--primary-600, #9D2235);
+    color: white;
+    border-color: var(--primary-600, #9D2235);
+}
+
+.syn-btn--primary:hover:not(:disabled) {
+    background: var(--primary-700, #7B1F2C);
+    border-color: var(--primary-700, #7B1F2C);
+}
+
+.syn-btn--secondary {
+    background: white;
+    color: var(--gray-700, #374151);
+    border-color: var(--gray-300, #D1D5DB);
+}
+
+.syn-btn--secondary:hover:not(:disabled) {
+    background: var(--gray-50, #F9FAFB);
+    color: var(--gray-900, #111827);
+    border-color: var(--gray-400, #9CA3AF);
+}
+
+.syn-btn--danger {
+    background: #DC2626;
+    color: white;
+    border-color: #DC2626;
+}
+
+.syn-btn--danger:hover:not(:disabled) {
+    background: #B91C1C;
+    border-color: #B91C1C;
+}
+
+.syn-btn--danger-ghost {
+    background: #FEF2F2;
+    color: #DC2626;
+    border-color: #FECACA;
+}
+
+.syn-btn--danger-ghost:hover:not(:disabled) {
+    background: #FEE2E2;
+    border-color: #FCA5A5;
+    color: #B91C1C;
+}
+
+.syn-btn--primary-ghost {
+    background: var(--primary-50);
+    color: var(--primary-700);
+    border-color: var(--primary-100);
+}
+
+.syn-btn--primary-ghost:hover:not(:disabled) {
+    background: var(--primary-100);
+    border-color: var(--primary-200);
+    color: var(--primary-800);
+}
+
+.syn-btn--success {
+    background: #10B981;
+    color: white;
+    border-color: #10B981;
+}
+
+.syn-btn--success:hover:not(:disabled) {
+    background: #059669;
+    border-color: #059669;
+}
+
+.syn-btn--success-ghost {
+    background: #ECFDF5;
+    color: #047857;
+    border-color: #A7F3D0;
+}
+
+.syn-btn--success-ghost:hover:not(:disabled) {
+    background: #D1FAE5;
+    border-color: #6EE7B7;
+}
+
+.syn-btn--ghost {
+    background: transparent;
+    color: var(--gray-600, #4B5563);
+    border-color: transparent;
+}
+
+.syn-btn--ghost:hover:not(:disabled) {
+    background: var(--gray-100, #F3F4F6);
+    color: var(--gray-900, #111827);
+}
+
+.syn-btn--sm { padding: 0.35rem 0.75rem; font-size: 0.78rem; }
+.syn-btn--lg { padding: 0.75rem 1.5rem;  font-size: 0.95rem; }
+
+/* ----------------------------------------------------------------------------
+   8. UTILITIES
+   --------------------------------------------------------------------------- */
+.syn-mono {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+.syn-hidden { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+    .syn-dialog,
+    .syn-toast,
+    .syn-skel,
+    .syn-spinner,
+    .syn-btn {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ----------------------------------------------------------------------------
+   9. TABLES — .table / .table-mini / .kv-table
+   ----------------------------------------------------------------------------
+   Three table classes are recognized project-wide. Every paginated data
+   table in the application uses one of these. Centralizing the rules
+   here means:
+
+     1. Consistent visual identity across every page.
+     2. Corner-radius clipping into the parent .card is automatic — no
+        more sharp corners leaking out of a rounded card.
+     3. Removes the dozens of inline <style> blocks that previously
+        re-declared the same rules per view.
+
+   Usage:
+     <div class="card">
+       <div class="card-body" style="padding: 0;">
+         <table class="table-mini">…</table>
+       </div>
+     </div>
+
+   Why `border-collapse: separate`:
+     The CSS `border-radius` property is honoured per-cell only when the
+     table is in the "separate" border model. We use separate + 0
+     border-spacing, then explicitly draw row dividers via `border-bottom`
+     on cells. This is the only way to get round corners that respect the
+     parent .card's rounded boundary.
+   --------------------------------------------------------------------------- */
+
+/* ---- Compact data table (.table-mini) ---- */
+.table-mini,
+.table.kv-table,
+.table {
+    width: 100%;
+    /* !important lets us override legacy `style="border-collapse: collapse"`
+       declarations still present in some views. Without it, the corners
+       can't be rounded because the collapse model hides cell radius. */
+    border-collapse: separate !important;
+    border-spacing: 0;
+    font-size: 0.825rem;
+    color: var(--gray-700, #374151);
+}
+.table-mini thead th,
+.table.kv-table thead th,
+.table > thead > th {
+    text-align: left;
+    padding: 0.6rem 0.85rem;
+    background: var(--gray-50, #F9FAFB);
+    color: var(--gray-700, #374151);
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--gray-200, #E5E7EB);
+    white-space: nowrap;
+}
+.table-mini tbody td,
+.table.kv-table tbody td,
+.table > tbody > td {
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid var(--gray-100, #F3F4F6);
+    color: var(--gray-700, #374151);
+    vertical-align: middle;
+}
+.table-mini tbody tr,
+.table.kv-table tbody tr,
+.table > tbody > tr {
+    transition: background-color 120ms ease;
+}
+.table-mini tbody tr:hover,
+.table.kv-table tbody tr:hover,
+.table > tbody > tr:hover {
+    background: var(--gray-50, #F9FAFB);
+}
+.table-mini tbody tr:last-child td,
+.table.kv-table tbody tr:last-child td,
+.table > tbody > tr:last-child td {
+    border-bottom: none;
+}
+
+/* ---- Round the top-left + top-right of the first row ---- */
+.table-mini > thead > tr:first-child > th:first-child,
+.table.kv-table > thead > tr:first-child > th:first-child,
+.table > thead > tr:first-child > th:first-child,
+.table-mini > tbody > tr:first-child > td:first-child,
+.table > tbody > tr:first-child > td:first-child {
+    border-top-left-radius: inherit;
+}
+/* Top-right corner (the `border-top-left-radius: inherit` only works
+   when the parent itself has a radius — which it doesn't, the .card is
+   two levels up. We have to apply an explicit radius. */
+.table-mini > thead > tr:first-child > th:first-child,
+.table.kv-table > thead > tr:first-child > th:first-child,
+.table > thead > tr:first-child > th:first-child,
+.table-mini > thead > tr:first-child > th:last-child,
+.table.kv-table > thead > tr:first-child > th:last-child,
+.table > thead > tr:first-child > th:last-child,
+.table-mini > tbody > tr:first-child > td:first-child,
+.table > tbody > tr:first-child > td:first-child,
+.table-mini > tbody > tr:first-child > td:last-child,
+.table > tbody > tr:first-child > td:last-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+/* ---- Round the bottom-left + bottom-right of the last row ---- */
+.table-mini > tbody > tr:last-child > td:first-child,
+.table.kv-table > tbody > tr:last-child > td:first-child,
+.table > tbody > tr:last-child > td:first-child,
+.table-mini > tbody > tr:last-child > td:last-child,
+.table.kv-table > tbody > tr:last-child > td:last-child,
+.table > tbody > tr:last-child > td:last-child {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* ---- Card-aware corner clipping ----
+   When a table is inside .card .card-body (the common pattern), we
+   round the corners of the first row's first/last cells (top) and
+   the last row's first/last cells (bottom). This makes the table's
+   cells visually align with the card's rounded boundary.
+
+   The radius matches the card's --radius-lg (14px, scales to 12.6 at 90%
+   via the syn-compact-ui rule). If the card uses a different radius
+   via a modifier, the override is on .card itself, not the table.
+   We round explicitly here because we can't `inherit` across the
+   intermediate .card-body wrapper. */
+.card .table-mini > thead > tr:first-child > th:first-child,
+.card .table.kv-table > thead > tr:first-child > th:first-child,
+.card .table > thead > tr:first-child > th:first-child {
+    border-top-left-radius: 12px;
+}
+.card .table-mini > thead > tr:first-child > th:last-child,
+.card .table.kv-table > thead > tr:first-child > th:last-child,
+.card .table > thead > tr:first-child > th:last-child {
+    border-top-right-radius: 12px;
+}
+.card .table-mini > tbody > tr:last-child > td:first-child,
+.card .table.kv-table > tbody > tr:last-child > td:first-child,
+.card .table > tbody > tr:last-child > td:first-child {
+    border-bottom-left-radius: 12px;
+}
+.card .table-mini > tbody > tr:last-child > td:last-child,
+.card .table.kv-table > tbody > tr:last-child > td:last-child,
+.card .table > tbody > tr:last-child > td:last-child {
+    border-bottom-right-radius: 12px;
+}
+
+/* Smaller radius when the table is inside a .card-sm / .card-pill /
+   dialog (.syn-dialog). Keeps the visual hierarchy intact. */
+.syn-dialog .table-mini > thead > tr:first-child > th:first-child,
+.syn-dialog .table > thead > tr:first-child > th:first-child,
+.syn-dialog .table-mini > tbody > tr:last-child > td:first-child,
+.syn-dialog .table > tbody > tr:last-child > td:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+.syn-dialog .table-mini > thead > tr:first-child > th:last-child,
+.syn-dialog .table > thead > tr:first-child > th:last-child,
+.syn-dialog .table-mini > tbody > tr:last-child > td:last-child,
+.syn-dialog .table > tbody > tr:last-child > td:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+/* ---- Key/value tables (.kv-table) — used for "label : value" lists
+   in user / role detail pages. The label cell is the <th>, the value
+   cell is the <td>. We make the th narrower and muted, and the td
+   spans the remaining width. */
+.table.kv-table th {
+    width: 180px;
+    padding: 0.5rem 0.85rem;
+    background: transparent;
+    color: var(--gray-500, #6B7280);
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.8rem;
+    vertical-align: top;
+    border-bottom: 1px solid var(--gray-100, #F3F4F6);
+}
+.table.kv-table td {
+    padding: 0.5rem 0.85rem;
+    border-bottom: 1px solid var(--gray-100, #F3F4F6);
+}
+
+/* ---- Empty state row ----
+   Use `<tr><td colspan="N" class="empty-state">…</td></tr>` so an empty
+   table renders a centered message instead of a bare header. */
+.table-mini .empty-state,
+.table .empty-state {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--gray-500, #6B7280);
+    font-size: 0.875rem;
+}
+
+/* ---- Compact table mode (overridable via JS / html.syn-compact-tables) ---- */
+html.syn-compact-tables .table-mini th,
+html.syn-compact-tables .table-mini td,
+html.syn-compact-tables .table th,
+html.syn-compact-tables .table td {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.78rem;
+}
+
+/* ---- Compact-tables-with-pagination: round the bottom of the LAST
+   table row so it visually connects to the .syn-pagination footer
+   that lives directly below the table inside the same .card. */
+.card > .card-body > .syn-pagination,
+.card > .syn-pagination {
+    border-top: 1px solid var(--gray-200, #E5E7EB);
+}
+/* When the pagination IS the bottom of the card, give it the same
+   bottom-left / bottom-right radius as the card so the corners match. */
+.card > .syn-pagination {
+    border-bottom-left-radius: var(--radius-lg, 14px);
+    border-bottom-right-radius: var(--radius-lg, 14px);
+}
+
+/* ----------------------------------------------------------------------------
+   10. LIVE SEARCH BAR + HIGHLIGHTS
+   ----------------------------------------------------------------------------
+   The unified search component used by every filterable data table in
+   the application. Pages opt in by wrapping their search input in:
+
+     <form data-synapse-search class="syn-search-bar" method="get">
+       <input type="search" name="q" value="…" autocomplete="off" />
+       …
+     </form>
+
+   The synapse-ui.js auto-wire:
+     - Listens for `input` events (debounced ~300ms)
+     - Calls the same URL via the SPA module with the new query
+     - Replaces <main>'s inner HTML with the filtered result
+     - Scrolls the table into view (since the user is searching)
+
+   The server wraps match substrings in <mark> tags via the PHP helper
+   `search_highlight($text, $query)`. This CSS styles the <mark>.
+
+   Empty-state row + "no matches" toast are handled by the JS auto-wire
+   based on whether <main> contains a table at all.
+   --------------------------------------------------------------------------- */
+
+/* ---- <mark> highlight inside result rows ----
+   We use the brand's primary-100 as the fill, primary-700 as the
+   text, and a subtle inset shadow for depth. This stays readable
+   on both white and gray-50 cell backgrounds. */
+mark,
+mark.syn-highlight {
+    background: linear-gradient(180deg, #FCE99A 0%, #F5D861 100%);
+    color: var(--primary-900, #3D0F18);
+    padding: 0.05em 0.3em;
+    border-radius: 4px;
+    font-weight: 600;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+    /* Preserve search query casing in the highlighted text. */
+    text-decoration: inherit;
+}
+/* When inside a colored cell (e.g. status pill), the gradient fights
+   with the parent background. The `mark.syn-highlight-fade` variant
+   uses a solid color instead. */
+mark.syn-highlight-fade {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+/* Pill / chip badges rendered inside table cells. Used for status,
+   role, and category labels. Replaces a dozen inline-styled spans. */
+.syn-badge {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.syn-badge--primary  { background: var(--primary-50);   color: var(--primary-700); }
+.syn-badge--success  { background: #ECFDF5; color: #047857; }
+.syn-badge--warning  { background: #FFFBEB; color: #B45309; }
+.syn-badge--danger   { background: #FEF2F2; color: #B91C1C; }
+.syn-badge--neutral  { background: var(--gray-100);     color: var(--gray-700); }
+.syn-badge--info     { background: #EFF6FF; color: #1D4ED8; }
+
+/* Stock status badges specific to inventory. Color shades signal
+   urgency at a glance. */
+.syn-badge--stock-out      { background: #FEF2F2; color: #B91C1C; }
+.syn-badge--stock-low      { background: #FFFBEB; color: #B45309; }
+.syn-badge--stock-ok       { background: #ECFDF5; color: #047857; }
+
+/* Action links rendered inside table cells — small "View / Edit / +"
+   style. */
+.syn-cell-action {
+    display: inline-block;
+    padding: 0.22rem 0.55rem;
+    border-radius: 0.375rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 120ms ease, color 120ms ease;
+    margin-right: 0.2rem;
+}
+.syn-cell-action:last-child { margin-right: 0; }
+.syn-cell-action--view     { background: var(--primary-50); color: var(--primary-700); }
+.syn-cell-action--view:hover { background: var(--primary-100); }
+.syn-cell-action--success  { background: #ECFDF5; color: #047857; }
+.syn-cell-action--success:hover { background: #D1FAE5; }
+.syn-cell-action--ghost    { background: transparent; color: var(--gray-600); border: 1px solid var(--gray-200); }
+.syn-cell-action--ghost:hover { background: var(--gray-100); }
+
+/* Centered column helper for numeric / status cells. */
+.syn-cell-center {
+    text-align: center;
+}
+.syn-cell-low  { color: #DC2626; font-weight: 700; }
+.syn-cell-ok   { color: #111827; font-weight: 700; }
+.syn-cell-muted { color: var(--gray-400); }
+
+/* Search-bar card sits directly above the table card. We add a
+   consistent bottom margin and tighten the card-body padding so the
+   search input/buttons align cleanly with the table card. */
+.syn-search-card {
+    margin-bottom: 1rem;
+}
+.syn-search-card > .card-body {
+    padding: 0.75rem 1rem;
+}
+
+/* Page summary strip — a row at the top of dense list pages that
+   shows total / page info on the left and any "page-level" actions
+   (e.g. "Verify Chain" / "Export CSV") on the right. Used when the
+   page has no top-level search form because the search itself lives
+   in a cards row elsewhere. */
+.syn-page-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.6rem 1rem;
+    background: var(--gray-50, #F9FAFB);
+    border: 1px solid var(--gray-200, #E5E7EB);
+    border-radius: var(--radius-md, 8px);
+}
+.syn-page-summary-text {
+    color: var(--gray-600, #4B5563);
+    margin: 0;
+    font-size: 0.875rem;
+}
+.syn-page-summary-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* ---- Search bar wrapper ----
+   Two-tier layout:
+     .syn-search-bar            <form> — single grid container
+       .syn-search-row          primary row: search input + action buttons
+         .syn-search-input-wrap flex-grow input
+         .syn-search-actions    right-aligned action buttons
+       .syn-search-filters      secondary row: filter chips (optional)
+         .syn-search-field      each filter input wrapper
+         .syn-search-chip       small "× Clear" link
+   Used in every list page that has a search input. */
+.syn-search-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    row-gap: 0.5rem;
+    width: 100%;
+}
+.syn-search-bar > .syn-search-row {
+    grid-column: 1 / 2;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
+.syn-search-bar > .syn-search-actions {
+    grid-column: 2 / 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-self: end;
+    flex-wrap: wrap;
+}
+.syn-search-bar > .syn-search-filters {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding-top: 0.65rem;
+    border-top: 1px dashed var(--gray-200, #E5E7EB);
+    margin-top: 0.25rem;
+}
+/* On narrow viewports, the actions stack under the search input
+   instead of cramping the field. */
+@media (max-width: 640px) {
+    .syn-search-bar {
+        grid-template-columns: 1fr;
+    }
+    .syn-search-bar > .syn-search-row,
+    .syn-search-bar > .syn-search-actions,
+    .syn-search-bar > .syn-search-filters {
+        grid-column: 1 / -1;
+        justify-self: stretch;
+    }
+}
+.syn-search-bar .syn-search-input-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+}
+
+/* Each filter input/select inside the secondary row gets wrapped
+   in a .syn-search-field so we can give them consistent max widths
+   without inline styles. */
+.syn-search-bar .syn-search-field {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+}
+.syn-search-bar .syn-search-field > input,
+.syn-search-bar .syn-search-field > select {
+    height: 34px;
+    padding: 0 0.6rem;
+    border: 1px solid var(--gray-300, #D1D5DB);
+    border-radius: var(--radius-sm, 6px);
+    background-color: white;
+    font-family: inherit;
+    font-size: 0.8125rem;
+    color: var(--gray-900, #111827);
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+    box-sizing: border-box;
+}
+.syn-search-bar .syn-search-field > input:hover,
+.syn-search-bar .syn-search-field > select:hover {
+    border-color: var(--gray-400, #9CA3AF);
+}
+.syn-search-bar .syn-search-field > input:focus,
+.syn-search-bar .syn-search-field > select:focus {
+    outline: none;
+    border-color: var(--primary-500, #B8304A);
+    box-shadow: 0 0 0 3px rgba(184, 48, 74, 0.18);
+}
+.syn-search-bar .syn-search-field > input {
+    min-width: 110px;
+}
+.syn-search-bar .syn-search-field > input[type="number"] {
+    width: 110px;
+}
+.syn-search-bar .syn-search-field--date > input {
+    min-width: 140px;
+}
+.syn-search-bar .syn-search-field--select > select,
+.syn-search-bar .syn-search-field--select .syn-dropdown,
+.syn-search-bar .syn-search-field--select .syn-select {
+    min-width: 140px;
+}
+
+/* Chip-style "× Clear" link that sits at the end of the filter row.
+   Replaces the various inline-styled clear links across views. */
+.syn-search-bar .syn-search-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0 0.85rem;
+    height: 38px;
+    border-radius: 999px;
+    background: var(--gray-100, #F3F4F6);
+    color: var(--gray-700, #374151);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+    white-space: nowrap;
+    line-height: 1;
+}
+.syn-search-bar .syn-search-chip:hover {
+    background: var(--gray-200, #E5E7EB);
+    color: var(--gray-900, #111827);
+    border-color: var(--gray-300, #D1D5DB);
+}
+.syn-search-bar .syn-search-chip i {
+    font-size: 0.7rem;
+}
+
+/* Action buttons that live in the search bar's right-aligned
+   action slot. They use the same height rhythm as filter fields. */
+.syn-search-bar .syn-search-actions .syn-btn {
+    height: 38px;
+}
+.syn-search-bar .syn-search-actions .syn-btn,
+.syn-search-bar .syn-search-actions a,
+.syn-search-bar .syn-search-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0 0.85rem;
+    border-radius: var(--radius-sm, 6px);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    height: 38px;
+    box-sizing: border-box;
+    line-height: 1;
+}
+.syn-search-bar .syn-search-input-wrap > i.syn-search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-400, #9CA3AF);
+    font-size: 0.85rem;
+    pointer-events: none;
+    transition: color 150ms ease;
+}
+.syn-search-bar input.syn-search-input,
+.syn-search-bar input[type="search"],
+.syn-search-bar input[name="q"] {
+    width: 100%;
+    height: 38px;
+    padding: 0 var(--syn-field-padding-y, 0.45rem) 0 2.4rem;
+    border: 1px solid var(--gray-300, #D1D5DB);
+    border-radius: var(--syn-field-radius, 8px);
+    background-color: white;
+    font-family: inherit;
+    font-size: var(--syn-field-font-size, 0.875rem);
+    color: var(--gray-900, #111827);
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+    box-sizing: border-box;
+}
+/* The clear (×) button rendered inside type="search" — webkit only. */
+.syn-search-bar input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%236B7280'><path d='M3 3l10 10M13 3L3 13' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round'/></svg>");
+    cursor: pointer;
+    opacity: 0.6;
+}
+.syn-search-bar input[type="search"]::-webkit-search-cancel-button:hover {
+    opacity: 1;
+}
+.syn-search-bar input.syn-search-input:hover,
+.syn-search-bar input[type="search"]:hover,
+.syn-search-bar input[name="q"]:hover {
+    border-color: var(--gray-400, #9CA3AF);
+}
+.syn-search-bar input.syn-search-input:focus,
+.syn-search-bar input[type="search"]:focus,
+.syn-search-bar input[name="q"]:focus {
+    outline: none;
+    border-color: var(--primary-500, #B8304A);
+    box-shadow: 0 0 0 3px rgba(184, 48, 74, 0.18);
+}
+.syn-search-bar .syn-search-input-wrap:focus-within > i.syn-search-icon {
+    color: var(--primary-500, #B8304A);
+}
+/* "Live" indicator that appears next to the input while a fetch
+   is in flight (small spinner or "Searching…" pill). */
+.syn-search-bar .syn-search-status {
+    font-size: 0.75rem;
+    color: var(--gray-500, #6B7280);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0 0.6rem;
+    height: 28px;
+    border-radius: var(--radius-sm, 6px);
+    background: var(--gray-100, #F3F4F6);
+    white-space: nowrap;
+}
+/* The status is rendered with hidden="" by default and only shown
+   when a fetch is in flight. The hidden attribute should win, but
+   the inline-flex display above would otherwise override it. */
+.syn-search-bar .syn-search-status[hidden] {
+    display: none !important;
+}
+.syn-search-bar .syn-search-status.is-loading::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-300, #D1D5DB);
+    border-top-color: var(--primary-500, #B8304A);
+    animation: syn-search-spin 0.7s linear infinite;
+}
+@keyframes syn-search-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---- Result count badge ----
+   "Showing X matches" pill rendered between the search bar and the
+   table when a filter is active. Helps the user understand what
+   they're looking at. */
+.syn-search-result-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-sm, 6px);
+    background: var(--primary-50, #FDF2F4);
+    border: 1px solid var(--primary-100, #FBE0E5);
+    color: var(--primary-700, #7B1F2C);
+}
+.syn-search-result-count strong {
+    font-weight: 700;
+    color: var(--primary-800, #5A1722);
+}
+.syn-search-result-count i {
+    font-size: 0.7rem;
+}
+/* Inline header version: sits in the card header next to the table
+   title, instead of a full-width row above the table. */
+.syn-search-result-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    font-size: 0.8rem;
+    color: var(--gray-600, #4B5563);
+}
+.syn-search-result-row .syn-search-clear-link {
+    font-size: 0.78rem;
+    color: var(--primary-700, #7B1F2C);
+    text-decoration: none;
+    font-weight: 600;
+}
+.syn-search-result-row .syn-search-clear-link:hover {
+    text-decoration: underline;
+}
+
+/* ---- "No matches" empty state ----
+   Inserted by the JS auto-wire when the server returns no rows for
+   the current query. Renders a centered call-to-action that links
+   back to the unfiltered list. */
+.syn-search-empty {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--gray-500, #6B7280);
+    background: var(--gray-50, #F9FAFB);
+}
+.syn-search-empty i {
+    font-size: 2.5rem;
+    color: var(--gray-300, #D1D5DB);
+    display: block;
+    margin-bottom: 0.75rem;
+}
+.syn-search-empty h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-700, #374151);
+}
+.syn-search-empty p {
+    margin: 0 0 1rem;
+    font-size: 0.875rem;
+}
+.syn-search-empty a {
+    color: var(--primary-600, #9D2235);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.syn-search-empty a:hover {
+    text-decoration: underline;
+}
+
+/* Reduced motion: kill the spinner animation */
+@media (prefers-reduced-motion: reduce) {
+    .syn-search-bar .syn-search-status.is-loading::before {
+        animation: none;
+    }
+}
