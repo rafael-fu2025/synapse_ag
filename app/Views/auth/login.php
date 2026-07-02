@@ -412,7 +412,7 @@
                 </div>
             <?php endif; ?>
 
-            <form action="/login" method="POST" novalidate data-synapse-submit data-synapse-no-spin="false">
+            <form action="<?= base_url('login') ?>" method="POST" novalidate data-synapse-submit data-synapse-no-spin="false">
                 <?= csrf_field() ?>
 
                 <div class="form-group">

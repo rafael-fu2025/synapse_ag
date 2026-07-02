@@ -1583,7 +1583,7 @@
 
             <nav class="sidebar-nav">
                 <div class="nav-section-title">Main</div>
-                <a href="/dashboard" class="nav-link <?= uri_string() === 'dashboard' ? 'active' : '' ?>">
+                <a href="<?= base_url('dashboard') ?>" class="nav-link <?= uri_string() === 'dashboard' ? 'active' : '' ?>">
                     <i class="fas fa-th-large"></i> Dashboard
                 </a>
 
@@ -1597,81 +1597,81 @@
 
                 <?php if ($isClinic): ?>
                 <div class="nav-section-title">Clinic</div>
-                <a href="/clinic/consultations" class="nav-link <?= str_starts_with(uri_string(), 'clinic/consultation') ? 'active' : '' ?>">
+                <a href="<?= base_url('clinic/consultations') ?>" class="nav-link <?= str_starts_with(uri_string(), 'clinic/consultation') ? 'active' : '' ?>">
                     <i class="fas fa-clipboard-list"></i> Consultations
                 </a>
-                <a href="/clinic/students" class="nav-link <?= str_starts_with(uri_string(), 'clinic/student') ? 'active' : '' ?>">
+                <a href="<?= base_url('clinic/students') ?>" class="nav-link <?= str_starts_with(uri_string(), 'clinic/student') ? 'active' : '' ?>">
                     <i class="fas fa-users"></i> Students
                 </a>
-                <a href="/clinic/referrals" class="nav-link <?= str_starts_with(uri_string(), 'clinic/referral') ? 'active' : '' ?>">
+                <a href="<?= base_url('clinic/referrals') ?>" class="nav-link <?= str_starts_with(uri_string(), 'clinic/referral') ? 'active' : '' ?>">
                     <i class="fas fa-arrow-right-arrow-left"></i> Referrals
                 </a>
-                <a href="/iot/kiosk" target="_blank" class="nav-link">
+                <a href="<?= base_url('iot/kiosk') ?>" target="_blank" class="nav-link">
                     <i class="fas fa-desktop"></i> Check-In Kiosk
                 </a>
 
                 <div class="nav-section-title">Inventory</div>
-                <a href="/inventory" class="nav-link <?= uri_string() === 'inventory' || str_starts_with(uri_string(), 'inventory/medicines') ? 'active' : '' ?>">
+                <a href="<?= base_url('inventory') ?>" class="nav-link <?= uri_string() === 'inventory' || str_starts_with(uri_string(), 'inventory/medicines') ? 'active' : '' ?>">
                     <i class="fas fa-pills"></i> Medicine Catalog
                 </a>
-                <a href="/inventory/low-stock" class="nav-link <?= uri_string() === 'inventory/low-stock' ? 'active' : '' ?>">
+                <a href="<?= base_url('inventory/low-stock') ?>" class="nav-link <?= uri_string() === 'inventory/low-stock' ? 'active' : '' ?>">
                     <i class="fas fa-triangle-exclamation"></i> Low Stock
                 </a>
-                <a href="/inventory/expiring" class="nav-link <?= uri_string() === 'inventory/expiring' ? 'active' : '' ?>">
+                <a href="<?= base_url('inventory/expiring') ?>" class="nav-link <?= uri_string() === 'inventory/expiring' ? 'active' : '' ?>">
                     <i class="fas fa-calendar-xmark"></i> Expiring Batches
                 </a>
                 <?php endif; ?>
 
                 <?php if ($isCounsellor): ?>
                 <div class="nav-section-title">Counselling</div>
-                <a href="/counselling" class="nav-link <?= uri_string() === 'counselling' ? 'active' : '' ?>">
+                <a href="<?= base_url('counselling') ?>" class="nav-link <?= uri_string() === 'counselling' ? 'active' : '' ?>">
                     <i class="fas fa-calendar-check"></i> Appointments
                 </a>
-                <a href="/counselling/screenings" class="nav-link <?= str_starts_with(uri_string(), 'counselling/screening') ? 'active' : '' ?>">
+                <a href="<?= base_url('counselling/screenings') ?>" class="nav-link <?= str_starts_with(uri_string(), 'counselling/screening') ? 'active' : '' ?>">
                     <i class="fas fa-clipboard-list"></i> Screenings
                 </a>
-                <a href="/counselling/crisis" class="nav-link <?= str_starts_with(uri_string(), 'counselling/crisis') ? 'active' : '' ?>">
+                <a href="<?= base_url('counselling/crisis') ?>" class="nav-link <?= str_starts_with(uri_string(), 'counselling/crisis') ? 'active' : '' ?>">
                     <i class="fas fa-bell"></i> Crisis Alerts
                 </a>
-                <a href="/counselling/availability" class="nav-link <?= str_starts_with(uri_string(), 'counselling/availability') ? 'active' : '' ?>">
+                <a href="<?= base_url('counselling/availability') ?>" class="nav-link <?= str_starts_with(uri_string(), 'counselling/availability') ? 'active' : '' ?>">
                     <i class="fas fa-clock"></i> My Availability
                 </a>
-                <a href="/counselling/referrals" class="nav-link <?= str_starts_with(uri_string(), 'counselling/referral') ? 'active' : '' ?>">
+                <a href="<?= base_url('counselling/referrals') ?>" class="nav-link <?= str_starts_with(uri_string(), 'counselling/referral') ? 'active' : '' ?>">
                     <i class="fas fa-arrow-right-arrow-left"></i> Referrals
                 </a>
                 <?php endif; ?>
 
                 <?php if ($isStudent): ?>
                 <div class="nav-section-title">Student</div>
-                <a href="/dashboard/student#upcoming" class="nav-link">
+                <a href="<?= base_url('dashboard/student#upcoming') ?>" class="nav-link">
                     <i class="fas fa-calendar-check"></i> My Appointments
                 </a>
-                <a href="/dashboard/student#screenings" class="nav-link">
+                <a href="<?= base_url('dashboard/student#screenings') ?>" class="nav-link">
                     <i class="fas fa-clipboard-list"></i> Screenings
                 </a>
-                <a href="/profile" class="nav-link">
+                <a href="<?= base_url('profile') ?>" class="nav-link">
                     <i class="fas fa-id-card"></i> My Profile
                 </a>
                 <?php endif; ?>
 
                 <?php if ($isAdmin): ?>
                 <div class="nav-section-title">Administration</div>
-                <a href="/admin" class="nav-link <?= uri_string() === 'admin' ? 'active' : '' ?>">
+                <a href="<?= base_url('admin') ?>" class="nav-link <?= uri_string() === 'admin' ? 'active' : '' ?>">
                     <i class="fas fa-gauge-high"></i> Admin Console
                 </a>
-                <a href="/admin/users" class="nav-link <?= str_starts_with(uri_string(), 'admin/users') ? 'active' : '' ?>">
+                <a href="<?= base_url('admin/users') ?>" class="nav-link <?= str_starts_with(uri_string(), 'admin/users') ? 'active' : '' ?>">
                     <i class="fas fa-users-cog"></i> User Management
                 </a>
-                <a href="/admin/roles" class="nav-link <?= str_starts_with(uri_string(), 'admin/roles') ? 'active' : '' ?>">
+                <a href="<?= base_url('admin/roles') ?>" class="nav-link <?= str_starts_with(uri_string(), 'admin/roles') ? 'active' : '' ?>">
                     <i class="fas fa-user-shield"></i> Roles & Permissions
                 </a>
-                <a href="/admin/audit" class="nav-link <?= str_starts_with(uri_string(), 'admin/audit') ? 'active' : '' ?>">
+                <a href="<?= base_url('admin/audit') ?>" class="nav-link <?= str_starts_with(uri_string(), 'admin/audit') ? 'active' : '' ?>">
                     <i class="fas fa-shield-halved"></i> Audit Logs
                 </a>
-                <a href="/reports" class="nav-link <?= str_starts_with(uri_string(), 'reports') ? 'active' : '' ?>">
+                <a href="<?= base_url('reports') ?>" class="nav-link <?= str_starts_with(uri_string(), 'reports') ? 'active' : '' ?>">
                     <i class="fas fa-chart-bar"></i> Reports & Analytics
                 </a>
-                <a href="/ui" class="nav-link <?= uri_string() === 'ui' ? 'active' : '' ?>" target="_blank" data-label="UI Components">
+                <a href="<?= base_url('ui') ?>" class="nav-link <?= uri_string() === 'ui' ? 'active' : '' ?>" target="_blank" data-label="UI Components">
                     <i class="fas fa-puzzle-piece"></i> UI Components
                 </a>
                 <?php endif; ?>
