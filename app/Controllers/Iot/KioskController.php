@@ -42,7 +42,7 @@ class KioskController extends BaseController
             $triagePriority = null;
         }
         // Whitelist purpose — any other value falls back to clinic.
-        if (! in_array($purpose, ['clinic', 'counselling', 'pasimeo'], true)) {
+        if (! in_array($purpose, ['clinic', 'counselling'], true)) {
             $purpose = 'clinic';
         }
 
@@ -167,55 +167,6 @@ class KioskController extends BaseController
                     'name'         => trim(($student['first_name'] ?? '') . ' ' . ($student['last_name'] ?? '')),
                     'number'       => $student['student_number'],
                     'avatar'       => $student['avatar_url'] ?? null,
-                    'allergy_alert' => null,
-                ],
-            ]);
-        }
-
-        // PASIMEO check-in is the simplest flow: just record attendance
-        // in the outreach_attendance table. No queue, no consultation,
-        // no appointment lookup. The coordinator sees the attendance in
-        // their dashboard.
-        if ($purpose === 'pasimeo') {
-            $db = \Config\Database::connect();
-            /* The outreach_attendance schema requires an activity_id
-               (FK to outreach_activities). If the student has an active
-               activity scheduled for today, attach to it; otherwise log
-               a check-in against a "general" placeholder. For a v1
-               kiosk we just record the check-in_time without strict
-               activity linkage. */
-            $activeActivity = $db->table('outreach_activities')
-                ->where('DATE(activity_date) = CURDATE()', null, false)
-                ->orderBy('activity_date', 'ASC')
-                ->get()
-                ->getRow();
-
-            $existingAttendance = $db->table('outreach_attendance')
-                ->where('user_id', $student['user_id'])
-                ->where('DATE(check_in_time) = CURDATE()', null, false)
-                ->countAllResults();
-            if ($existingAttendance === 0 && $activeActivity) {
-                $db->table('outreach_attendance')->insert([
-                    'activity_id'     => (int) $activeActivity->id,
-                    'user_id'         => (int) $student['user_id'],
-                    'check_in_time'   => date('Y-m-d H:i:s'),
-                    'check_in_method' => $type === 'rfid' ? 'rfid' : ($type === 'qr' ? 'qr' : 'manual'),
-                    'hours_credited'  => 0,
-                ]);
-            }
-            $auditModel->logAction($userId, 'check-in', 'pasimeo', 'students', $studentId);
-            return $this->response->setJSON([
-                'success'      => true,
-                'title'        => 'PASIMEO Check-In Successful',
-                'destination'  => 'PASIMEO Coordinator',
-                'message'      => $existingAttendance === 0
-                    ? 'Your attendance has been recorded. Thank you for volunteering!'
-                    : 'You\'ve already checked in today. See your coordinator for hours.',
-                'queue_number' => 0,
-                'student'      => [
-                    'name'          => trim(($student['first_name'] ?? '') . ' ' . ($student['last_name'] ?? '')),
-                    'number'        => $student['student_number'],
-                    'avatar'        => $student['avatar_url'] ?? null,
                     'allergy_alert' => null,
                 ],
             ]);

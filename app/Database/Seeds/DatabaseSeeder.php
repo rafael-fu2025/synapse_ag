@@ -15,29 +15,26 @@ class DatabaseSeeder extends Seeder
     {
         echo "=== SYNAPSE Database Seeder ===\n\n";
 
-        echo "[1/6] Seeding Roles...\n";
+        echo "[1/7] Seeding Roles...\n";
         $this->call('RoleSeeder');
 
-        echo "\n[2/6] Seeding Permissions...\n";
+        echo "\n[2/7] Seeding Permissions...\n";
         $this->call('PermissionSeeder');
 
-        echo "\n[3/6] Seeding Role-Permission Assignments...\n";
+        echo "\n[3/7] Seeding Role-Permission Assignments...\n";
         $this->call('RolePermissionSeeder');
 
-        echo "\n[4/6] Seeding Admin User...\n";
+        echo "\n[4/7] Seeding Admin User...\n";
         $this->call('AdminSeeder');
 
-        echo "\n[5/6] Seeding Medicines & Batches...\n";
+        echo "\n[5/7] Seeding Medicines & Batches...\n";
         $this->call('MedicineSeeder');
 
-        echo "\n[6/8] Seeding Students...\n";
+        echo "\n[6/7] Seeding Students...\n";
         $this->call('StudentSeeder');
 
-        echo "\n[7/8] Seeding Assessments & Counsellor...\n";
+        echo "\n[7/7] Seeding Assessments & Counsellor...\n";
         $this->call('AssessmentSeeder');
-
-        echo "\n[8/8] Seeding Outreach & PASIMEO Coordinator...\n";
-        $this->call('OutreachSeeder');
 
         echo "\n=== Seeding Complete ===\n";
     }

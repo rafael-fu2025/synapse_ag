@@ -3,7 +3,7 @@
  * Pagination helper for SYNAPSE UI.
  *
  * ONE pagination component for the entire application. Every paginated
- * table (admin, clinic, counselling, inventory, pasimeo, reports, etc.)
+ * table (admin, clinic, counselling, inventory, reports, etc.)
  * uses this helper, so visual consistency is guaranteed.
  *
  * ---- Usage ----

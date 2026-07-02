@@ -15,9 +15,9 @@ class DashboardController extends BaseController
             'admin'                => $this->admin(),
             'clinic_staff'         => $this->clinic(),
             'counsellor'           => $this->counsellor(),
-            'pasimeo_coordinator'  => $this->pasimeo(),
+            // 'pasimeo_coordinator' removed July 2026 — fall through to admin.
             'student'              => $this->student(),
-            default                => $this->student(),
+            default                => $this->admin(),
         };
     }
 
@@ -181,37 +181,6 @@ class DashboardController extends BaseController
             'crisisAlerts'      => $crisisAlertsCount,
             'pendingReferrals'  => $pendingReferrals,
             'activeCaseload'    => $activeCaseload,
-        ]);
-    }
-
-    /**
-     * PASIMEO Coordinator Dashboard.
-     */
-    public function pasimeo()
-    {
-        $db = \Config\Database::connect();
-        
-        $programModel = new \App\Models\OutreachProgramModel();
-        $programStats = $programModel->getDashboardStats();
-        $activePrograms = $programStats['active'];
-        $upcomingActivities = $programStats['upcoming'];
-
-        $assignedVolunteers = $db->table('volunteer_assignments')
-            ->select('COUNT(DISTINCT user_id) as count')
-            ->whereIn('status', ['assigned', 'confirmed'])
-            ->get()->getRowArray()['count'] ?? 0;
-
-        $totalHours = (float) ($db->table('outreach_attendance')
-            ->selectSum('hours_credited')
-            ->get()->getRowArray()['hours_credited'] ?? 0);
-
-        return view('dashboard/pasimeo', [
-            'title'              => 'PASIMEO Dashboard — SYNAPSE',
-            'heading'            => 'Outreach Management',
-            'activePrograms'     => $activePrograms,
-            'upcomingActivities' => $upcomingActivities,
-            'assignedVolunteers' => $assignedVolunteers,
-            'totalHours'         => $totalHours,
         ]);
     }
 

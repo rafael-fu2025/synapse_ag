@@ -15,7 +15,7 @@
 --          * Added: triage_priority to consultations
 --          * Added: AI tables (triage, forecasts, risk scores, summaries)
 --          * Added: scheduling_analytics table
---          * Added: volunteer_workload_scores table
+--          * Added: volunteer_workload_scores table (removed July 2026 with PASIMEO module)
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS synapse_ag
@@ -403,74 +403,6 @@ CREATE TABLE crisis_alerts (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- 6. PASIMEO OUTREACH CORE
--- ============================================================
-
-CREATE TABLE outreach_programs (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  description TEXT NULL,
-  coordinator_id BIGINT UNSIGNED NOT NULL,
-  start_date DATE NULL,
-  end_date DATE NULL,
-  status ENUM('planning','active','completed','cancelled') DEFAULT 'planning',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (coordinator_id) REFERENCES users(id),
-  INDEX idx_programs_status (status)
-) ENGINE=InnoDB;
-
-CREATE TABLE outreach_activities (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  program_id BIGINT UNSIGNED NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  description TEXT NULL,
-  location VARCHAR(255) NULL,
-  activity_date DATE NOT NULL,
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL,
-  max_volunteers INT NULL,
-  status ENUM('upcoming','ongoing','completed','cancelled') DEFAULT 'upcoming',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (program_id) REFERENCES outreach_programs(id) ON DELETE CASCADE,
-  INDEX idx_activities_program (program_id),
-  INDEX idx_activities_date (activity_date)
-) ENGINE=InnoDB;
-
-CREATE TABLE volunteer_assignments (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  activity_id BIGINT UNSIGNED NOT NULL,
-  user_id BIGINT UNSIGNED NOT NULL,
-  assigned_role VARCHAR(100) NULL,
-  status ENUM('assigned','confirmed','declined','conflict') DEFAULT 'assigned',
-  conflict_reason TEXT NULL,
-  assigned_by BIGINT UNSIGNED NOT NULL,
-  assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (activity_id) REFERENCES outreach_activities(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id),
-  FOREIGN KEY (assigned_by) REFERENCES users(id),
-  INDEX idx_vol_activity (activity_id),
-  INDEX idx_vol_user (user_id)
-) ENGINE=InnoDB;
-
-CREATE TABLE outreach_attendance (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  activity_id BIGINT UNSIGNED NOT NULL,
-  user_id BIGINT UNSIGNED NOT NULL,
-  check_in_time TIMESTAMP NULL,
-  check_out_time TIMESTAMP NULL,
-  check_in_method ENUM('qr','rfid','manual') DEFAULT 'manual',
-  hours_credited DECIMAL(4,2) NULL,
-  verified_by BIGINT UNSIGNED NULL,
-  FOREIGN KEY (activity_id) REFERENCES outreach_activities(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id),
-  FOREIGN KEY (verified_by) REFERENCES users(id),
-  INDEX idx_attendance_activity (activity_id),
-  INDEX idx_attendance_user (user_id)
-) ENGINE=InnoDB;
-
--- ============================================================
 -- 7. SHARED / CROSS-CUTTING
 -- ============================================================
 
@@ -709,27 +641,8 @@ CREATE TABLE ai_generated_summaries (
   INDEX idx_summary_period (period_start, period_end)
 ) ENGINE=InnoDB;
 
--- 8.6 AI Feature F: Volunteer Workload Scores (Intelligent Conflict Detection)
-CREATE TABLE volunteer_workload_scores (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  user_id BIGINT UNSIGNED NOT NULL,
-  period_start DATE NOT NULL,
-  period_end DATE NOT NULL,
-  total_activities_assigned INT DEFAULT 0,
-  total_hours_committed DECIMAL(6,2) DEFAULT 0.00,
-  total_hours_completed DECIMAL(6,2) DEFAULT 0.00,
-  attendance_rate DECIMAL(5,4) DEFAULT 0.0000,
-  workload_score DECIMAL(5,2) NOT NULL COMMENT 'Normalized 0-100 score, higher = more loaded',
-  conflict_count INT DEFAULT 0,
-  predicted_availability_score DECIMAL(5,4) NULL COMMENT 'ML-predicted likelihood of attending next assignment',
-  last_calculated_at TIMESTAMP NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  UNIQUE INDEX idx_workload_user_period (user_id, period_start, period_end),
-  INDEX idx_workload_score (workload_score),
-  INDEX idx_workload_period (period_start, period_end)
-) ENGINE=InnoDB;
+-- 8.6 (reserved — formerly PASIMEO Volunteer Workload Scores; removed when
+-- the PASIMEO module was dropped from capstone scope in July 2026)
 
 -- ============================================================
 -- 9. CHECK CONSTRAINTS (MySQL 8.0.16+ / MariaDB 10.2+)
@@ -766,9 +679,6 @@ ALTER TABLE clinic_staff_schedules
 ALTER TABLE counsellor_availability
   ADD CONSTRAINT chk_ca_time_order CHECK (start_time < end_time);
 
-ALTER TABLE outreach_activities
-  ADD CONSTRAINT chk_oa_time_order CHECK (start_time < end_time);
-
 ALTER TABLE counselling_appointments
   ADD CONSTRAINT chk_appt_time_order CHECK (start_time < end_time);
 
@@ -803,11 +713,6 @@ ALTER TABLE scheduling_analytics
   ADD CONSTRAINT chk_sa_noshow_rate CHECK (no_show_rate BETWEEN 0.0000 AND 1.0000),
   ADD CONSTRAINT chk_sa_utilization CHECK (avg_utilization BETWEEN 0.0000 AND 1.0000);
 
-ALTER TABLE volunteer_workload_scores
-  ADD CONSTRAINT chk_vws_score CHECK (workload_score BETWEEN 0.00 AND 100.00),
-  ADD CONSTRAINT chk_vws_attendance CHECK (attendance_rate BETWEEN 0.0000 AND 1.0000),
-  ADD CONSTRAINT chk_vws_availability CHECK (predicted_availability_score BETWEEN 0.0000 AND 1.0000 OR predicted_availability_score IS NULL);
-
 ALTER TABLE ai_risk_scores
   ADD CONSTRAINT chk_risk_data_pts CHECK (data_points_used >= 1),
   ADD CONSTRAINT chk_risk_window CHECK (prediction_window_days >= 1);
@@ -816,26 +721,12 @@ ALTER TABLE ai_risk_scores
 ALTER TABLE counsellor_availability
   ADD CONSTRAINT chk_ca_max_slots CHECK (max_slots >= 1);
 
-ALTER TABLE outreach_activities
-  ADD CONSTRAINT chk_oa_max_vol CHECK (max_volunteers >= 1 OR max_volunteers IS NULL);
-
 -- 9.8 Date ordering
 ALTER TABLE medicine_batches
   ADD CONSTRAINT chk_batch_date_order CHECK (expiration_date > received_date);
 
-ALTER TABLE outreach_programs
-  ADD CONSTRAINT chk_prog_date_order CHECK (end_date >= start_date OR end_date IS NULL OR start_date IS NULL);
-
 ALTER TABLE ai_inventory_forecasts
-  ADD CONSTRAINT chk_forecast_period CHECK (forecast_period_end >= forecast_period_start);
-
-ALTER TABLE volunteer_workload_scores
-  ADD CONSTRAINT chk_vws_period CHECK (period_end >= period_start);
-
--- 9.9 Reorder threshold must be non-negative
-ALTER TABLE medicines
-  ADD CONSTRAINT chk_med_reorder CHECK (reorder_threshold >= 0);
-
+  ADD CONSTRAINT chk_forecast_period CHECK (forecast_period_end >= forecast_
 -- ============================================================
 -- END OF SCHEMA
 -- ============================================================
@@ -855,5 +746,5 @@ ALTER TABLE medicines
 --          * Index on staff_decision in ai_triage_predictions
 --          * Unique index on medicine_id + forecast_date in ai_inventory_forecasts
 --          * Index on student_id + score_type in ai_risk_scores
---          * Index on period_start + period_end in volunteer_workload_scores
+--          * Index on period_start + period_end (no longer applicable; PASIMEO removed)
 -- ============================================================

@@ -17,9 +17,6 @@ use App\Libraries\ReportSummarizer;
  *   crisis_alerts(created_at, status, severity, trigger_source, assigned_counsellor_id)
  *   assessment_responses(submitted_at, total_score, template_id, student_id)
  *   referrals(created_at, direction, status, priority)
- *   outreach_activities(activity_date, status, program_id)
- *   outreach_attendance(check_in_time, hours_credited, user_id, activity_id)
- *   volunteer_assignments(status, assigned_role, user_id, activity_id)
  *   medicines(reorder_threshold, is_active, generic_name, brand_name, unit, category)
  *   medicine_batches(quantity_remaining, expiration_date, status, medicine_id)
  *   inventory_transactions(transaction_date, transaction_type, quantity, medicine_batch_id)
@@ -88,16 +85,6 @@ class ReportController extends BaseController
                     ->where('quantity_remaining >', 0)
                     ->countAllResults(),
                 'url'         => base_url('reports/inventory'),
-            ],
-            'pasimeo' => [
-                'icon'        => 'fa-people-carry-box',
-                'label'       => 'PASIMEO Outreach',
-                'description' => 'Programs conducted, volunteer hours, attendance and verification.',
-                'kpi'         => (int) $db->table('outreach_activities')
-                    ->where('activity_date >=', $range['start'])
-                    ->where('activity_date <=', $range['end'])
-                    ->countAllResults(),
-                'url'         => base_url('reports/pasimeo'),
             ],
         ];
 
@@ -300,96 +287,6 @@ class ReportController extends BaseController
     }
 
     // ----------------------------------------------------------------
-    // PASIMEO analytics
-    // ----------------------------------------------------------------
-
-    public function pasimeo()
-    {
-        $range   = $this->getDateRange();
-        $db      = \Config\Database::connect();
-
-        // Programs
-        $programs = $db->table('outreach_programs')
-            ->select('status, COUNT(*) AS cnt')
-            ->groupBy('status')
-            ->get()->getResultArray();
-
-        // Activities within range
-        $activitiesTotal = (int) $db->table('outreach_activities')
-            ->where('activity_date >=', $range['start'])
-            ->where('activity_date <=', $range['end'])
-            ->countAllResults();
-
-        $activitiesByStatus = $db->table('outreach_activities')
-            ->select('status, COUNT(*) AS cnt')
-            ->where('activity_date >=', $range['start'])
-            ->where('activity_date <=', $range['end'])
-            ->groupBy('status')
-            ->get()->getResultArray();
-
-        $dailyTrend = $db->table('outreach_activities')
-            ->select('activity_date AS day, COUNT(*) AS cnt', false)
-            ->where('activity_date >=', $range['start'])
-            ->where('activity_date <=', $range['end'])
-            ->groupBy('day')
-            ->orderBy('day', 'ASC')
-            ->get()->getResultArray();
-
-        // Volunteer hours aggregated
-        $totalHours = (float) ($db->table('outreach_attendance')
-            ->selectSum('hours_credited')
-            ->where('check_in_time >=', $range['start'] . ' 00:00:00')
-            ->where('check_in_time <=', $range['end']   . ' 23:59:59')
-            ->get()->getRowArray()['hours_credited'] ?? 0);
-
-        // Distinct volunteers
-        $distinctVolunteers = (int) $db->table('outreach_attendance')
-            ->select('COUNT(DISTINCT user_id) AS cnt', false)
-            ->where('check_in_time >=', $range['start'] . ' 00:00:00')
-            ->where('check_in_time <=', $range['end']   . ' 23:59:59')
-            ->get()->getRowArray()['cnt'];
-
-        // Volunteer assignments by status — fully qualify `status` because both
-        // `volunteer_assignments` and `outreach_activities` have a `status`
-        // column. Without the qualifier MySQL raises
-        // "Column 'status' in field list is ambiguous".
-        $assignmentsByStatus = $db->table('volunteer_assignments')
-            ->select('volunteer_assignments.status, COUNT(*) AS cnt')
-            ->join('outreach_activities', 'outreach_activities.id = volunteer_assignments.activity_id')
-            ->where('outreach_activities.activity_date >=', $range['start'])
-            ->where('outreach_activities.activity_date <=', $range['end'])
-            ->groupBy('volunteer_assignments.status')
-            ->get()->getResultArray();
-
-        // Top volunteers by hours
-        $topVolunteers = $db->table('outreach_attendance')
-            ->select('users.first_name, users.last_name, SUM(outreach_attendance.hours_credited) AS total_hours, COUNT(*) AS sessions')
-            ->join('users', 'users.id = outreach_attendance.user_id')
-            ->where('outreach_attendance.check_in_time >=', $range['start'] . ' 00:00:00')
-            ->where('outreach_attendance.check_in_time <=', $range['end']   . ' 23:59:59')
-            ->where('outreach_attendance.hours_credited IS NOT NULL')
-            ->groupBy('outreach_attendance.user_id')
-            ->orderBy('total_hours', 'DESC')
-            ->limit(8)
-            ->get()->getResultArray();
-
-        return view('reports/pasimeo', [
-            'title'              => 'PASIMEO Analytics — SYNAPSE',
-            'heading'            => 'PASIMEO Outreach',
-            'range'              => $range,
-            'programs'           => $programs,
-            'activitiesTotal'    => $activitiesTotal,
-            'activitiesByStatus' => $activitiesByStatus,
-            'dailyTrend'         => $dailyTrend,
-            'totalHours'         => $totalHours,
-            'distinctVolunteers' => $distinctVolunteers,
-            'assignmentsByStatus'=> $assignmentsByStatus,
-            'topVolunteers'      => $topVolunteers,
-            'module'             => 'pasimeo',
-        ]);
-    }
-
-    // ----------------------------------------------------------------
     // Inventory analytics
     // ----------------------------------------------------------------
 
@@ -488,7 +385,7 @@ class ReportController extends BaseController
 
     public function export(string $module)
     {
-        $allowed = ['clinic', 'counselling', 'pasimeo', 'inventory'];
+        $allowed = ['clinic', 'counselling', 'inventory'];
         if (! in_array($module, $allowed, true)) {
             return $this->response->setStatusCode(404)->setBody('Unknown report module.');
         }
@@ -500,7 +397,6 @@ class ReportController extends BaseController
         [$headers, $rows, $filename] = match ($module) {
             'clinic' => $this->exportClinic($db, $range),
             'counselling' => $this->exportCounselling($db, $range),
-            'pasimeo' => $this->exportPasimeo($db, $range),
             'inventory' => $this->exportInventory($db, $range),
         };
 
@@ -569,24 +465,6 @@ class ReportController extends BaseController
 
         $headers = ['Date', 'Start', 'End', 'Type', 'Status', 'Reason', 'Counsellor', 'Student #'];
         $filename = 'synapse_counselling_' . $range['start'] . '_to_' . $range['end'] . '.csv';
-
-        return [$headers, $rows, $filename];
-    }
-
-    private function exportPasimeo($db, array $range): array
-    {
-        $rows = $db->table('outreach_attendance att')
-            ->select('oa.activity_date, oa.title AS activity_title, op.name AS program_name, oa.location, att.check_in_time, att.check_out_time, att.hours_credited, att.check_in_method, att.verified_by, u.first_name, u.last_name', false)
-            ->join('outreach_activities oa', 'oa.id = att.activity_id')
-            ->join('outreach_programs op', 'op.id = oa.program_id')
-            ->join('users u', 'u.id = att.user_id')
-            ->where('att.check_in_time >=', $range['start'] . ' 00:00:00')
-            ->where('att.check_in_time <=', $range['end']   . ' 23:59:59')
-            ->orderBy('att.check_in_time', 'ASC')
-            ->get()->getResultArray();
-
-        $headers = ['Activity Date', 'Activity', 'Program', 'Location', 'Check-In', 'Check-Out', 'Hours', 'Method', 'Verified By', 'Volunteer'];
-        $filename = 'synapse_pasimeo_' . $range['start'] . '_to_' . $range['end'] . '.csv';
 
         return [$headers, $rows, $filename];
     }

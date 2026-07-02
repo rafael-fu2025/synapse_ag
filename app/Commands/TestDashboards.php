@@ -9,7 +9,7 @@ class TestDashboards extends BaseCommand
 {
     protected $group       = 'Testing';
     protected $name        = 'test:dashboards';
-    protected $description = 'Verifies that all four dashboards render successfully with dynamic metrics.';
+    protected $description = 'Verifies that all four role dashboards render successfully with dynamic metrics.';
     protected $usage       = 'test:dashboards';
 
     public function run(array $params)
@@ -74,13 +74,13 @@ class TestDashboards extends BaseCommand
             CLI::write($e->getTraceAsString(), 'red');
         }
 
-        // 4. Test PASIMEO Dashboard
-        CLI::write("\n4. Testing PASIMEO Dashboard...", 'white');
+        // 4. Test Student Dashboard
+        CLI::write("\n4. Testing Student Dashboard...", 'white');
         try {
-            $html = $controller->pasimeo();
+            $html = $controller->student();
             CLI::write("   - Rendered successfully. Length: " . strlen($html) . " bytes");
             if (strpos($html, '<h3>—</h3>') !== false) {
-                CLI::write("   [FAIL] Found '<h3>—</h3>' placeholder in rendered pasimeo output!", 'red');
+                CLI::write("   [FAIL] Found '<h3>—</h3>' placeholder in rendered student dashboard!", 'red');
             } else {
                 CLI::write("   [PASS] No placeholders found.", 'green');
             }

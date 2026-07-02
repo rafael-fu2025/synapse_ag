@@ -219,31 +219,16 @@ class TestAi extends BaseCommand
 
             // ----------------------------------------------------
             // 6. AI-F: INTELLIGENT CONFLICT DETECTION TEST
+            //
+            // Note: previously this test also exercised the ConflictDetector's
+            // outreach/ volunteer-suggestion helpers. PASIMEO was dropped from
+            // capstone scope in July 2026; the outreach helpers were removed
+            // from the library. We now only verify counselling overlap here.
             // ----------------------------------------------------
             CLI::write("\n[6/6] Testing AI-F: Intelligent Conflict Detection...", 'white');
             $detector = new \App\Libraries\ConflictDetector();
 
-            // Create outreach program & activity today
-            $db->table('outreach_programs')->insert([
-                'name' => 'AI Test Outreach',
-                'description' => 'Workload and conflict AI testing',
-                'coordinator_id' => $userId, // coordinator link
-                'status' => 'active'
-            ]);
-            $progId = $db->insertID();
-
             $activityDate = date('Y-m-d', strtotime('+5 days'));
-            $db->table('outreach_activities')->insert([
-                'program_id' => $progId,
-                'title' => 'Immunization Mission',
-                'description' => 'Test',
-                'location' => 'School Clinic',
-                'activity_date' => $activityDate,
-                'start_time' => '09:00:00',
-                'end_time' => '12:00:00',
-                'status' => 'upcoming'
-            ]);
-            $actId = $db->insertID();
 
             // Scenario 1: No overlaps -> expect no conflicts
             $conf1 = $detector->detectConflicts($userId, $activityDate, '09:00:00', '12:00:00');
@@ -268,17 +253,6 @@ class TestAi extends BaseCommand
 
             if (!$conf2['has_conflict']) {
                 throw new Exception("Conflict detector failed to identify counselling appointment overlap.");
-            }
-
-            // Suggest alternatives
-            $alternatives = $detector->suggestAlternatives($actId, 3);
-            CLI::write("  - Suggested Alternative Volunteers: " . count($alternatives));
-            foreach ($alternatives as $alt) {
-                CLI::write("    * Name: " . $alt['name'] . " (Workload Score: " . $alt['workload_score'] . ")");
-            }
-
-            if (empty($alternatives)) {
-                throw new Exception("Failed to suggest alternative volunteers.");
             }
             CLI::write("  => PASS", 'green');
 

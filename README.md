@@ -31,15 +31,15 @@
 
 **SYNAPSE** addresses the operational fragmentation of campus health services. Most institutions run their clinic, counselling office, and outreach programs on **disconnected ledgers, spreadsheets, and chat threads** — which creates duplicated data entry, lost referrals, and missed risks.
 
-SYNAPSE unifies all three under a single login, a shared normalized database, and a role-based access control system. The platform digitizes patient records, automates medicine expiration and low-stock alerts, schedules counselling appointments with validated screening tools (PHQ-9, GAD-7), manages volunteer outreach with conflict detection, and provides role-specific analytics dashboards.
+SYNAPSE unifies clinic and counselling operations under a single login, a shared normalized database, and a role-based access control system. The platform digitizes patient records, automates medicine expiration and low-stock alerts, schedules counselling appointments with validated screening tools (PHQ-9, GAD-7), and provides role-specific analytics dashboards.
 
-The initial implementation is built for **Foundation University**, but the architecture is designed to onboard additional institutional systems (UniLab, PASIMEO) without modification.
+The implementation is built for **Foundation University**.
 
 ---
 
 ## Key Features
 
-- **Unified login** with role-based access control (5 roles: Administrator, Clinic Staff, Counsellor, PASIMEO Coordinator, Student)
+- **Unified login** with role-based access control (4 roles: Administrator, Clinic Staff, Counsellor, Student)
 - **Patient records** — consultation history, allergies, vitals, treatments, emergency contacts
 - **Medicine inventory** — FEFO batch tracking, expiration alerts, low-stock notifications, transaction history
 - **Counselling appointments** — online booking, availability blocks, no-show tracking, intake forms
@@ -47,7 +47,6 @@ The initial implementation is built for **Foundation University**, but the archi
 - **Bidirectional referrals** — clinic ↔ counselling with 48-hour SLA, automatic escalation
 - **Crisis alert protocol** — PHQ-9 Item 9 detection flags immediate counsellor alert
 - **IoT student ID scanning** — QR / RFID kiosk with offline fallback buffer
-- **PASIMEO outreach** — program scheduling, volunteer assignment, conflict detection, QR attendance
 - **AI-assisted features** — risk scoring, triage prediction, inventory forecasting, summary generation
 - **Reports & analytics** — Chart.js visualizations per module, CSV exports
 - **Comprehensive audit trail** — hash-chained log of every authentication, read, write, and override
@@ -63,7 +62,6 @@ The initial implementation is built for **Foundation University**, but the archi
 | **Dashboard** | `app/Controllers/DashboardController.php` | Role-aware landing page with KPI tiles |
 | **Clinic** | `app/Controllers/Clinic/` | Consultations, vitals, patients, medicines, allergies |
 | **Counselling** | `app/Controllers/Counselling/` | Appointments, screening, referrals, crisis alerts |
-| **PASIMEO** | `app/Controllers/Pasimeo/` | Outreach programs, activities, volunteers, attendance |
 | **Inventory** | `app/Controllers/Inventory/` | Medicine batches, transactions, forecasts |
 | **IoT** | `app/Controllers/Iot/` | QR/RFID scan handler, kiosk view, offline buffer |
 | **Reports** | `app/Controllers/Reports/` | Cross-module analytics, Chart.js, CSV exports |
@@ -224,7 +222,6 @@ Open the app and use one of the [default test credentials](#default-test-credent
 | **Administrator** | `admin@synapse.edu.ph` | `TestAdmin123!` |
 | **Clinic Staff** | `clinic@synapse.edu.ph` | `TestPass123!` |
 | **Counsellor** | `counsellor@synapse.edu.ph` | `TestPass123!` |
-| **PASIMEO Coordinator** | `pasimeo@synapse.edu.ph` | `TestPass123!` |
 | **Student** | `maria.santos@feu.edu.ph` | `TestPass123!` |
 
 If you've lost track of passwords during development, the `scratch/` directory contains helpers like `scratch/reset_admin.php` and `scratch/reset_test_users.php` that reset specific accounts.
@@ -242,7 +239,7 @@ SYNAPSE ships with six domain libraries that provide AI-assisted decision suppor
 | `SchedulingOptimizer` | Detects double-bookings and suggests slot reassignment for counsellor availability | `app/Libraries/SchedulingOptimizer.php` |
 | `InventoryForecaster` | Predicts depletion dates for medicine batches based on historical transaction velocity | `app/Libraries/InventoryForecaster.php` |
 | `ReportSummarizer` | Generates plain-English narrative summaries for the analytics dashboards | `app/Libraries/ReportSummarizer.php` |
-| `ConflictDetector` | Flags PASIMEO volunteer assignments that conflict with clinic or counselling duties | `app/Libraries/ConflictDetector.php` |
+| `ConflictDetector` | Detects schedule overlaps between counselling appointments and clinic duty shifts | `app/Libraries/ConflictDetector.php` |
 
 Each library's output is **advisory only** — clinicians and counsellors retain full override authority. Every override is recorded in the audit trail.
 
@@ -336,7 +333,7 @@ This project is released under the **MIT License**. See [LICENSE](LICENSE) for d
 
 **Author:** Rafael Torres — 2024–2026
 
-Special thanks to the capstone panel reviewers, the Foundation University Health Services Office, the Guidance and Counselling Office, and the PASIMEO outreach program for their domain expertise and pilot-testing support.
+Special thanks to the capstone panel reviewers, the Foundation University Health Services Office, and the Guidance and Counselling Office for their domain expertise and pilot-testing support.
 
 ---
 

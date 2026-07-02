@@ -1592,7 +1592,6 @@
                 $isAdmin = in_array('admin', $roles);
                 $isClinic = in_array('clinic_staff', $roles) || $isAdmin;
                 $isCounsellor = in_array('counsellor', $roles) || $isAdmin;
-                $isPasimeo = in_array('pasimeo_coordinator', $roles) || $isAdmin;
                 $isStudent = in_array('student', $roles);
                 ?>
 
@@ -1639,13 +1638,6 @@
                 </a>
                 <a href="/counselling/referrals" class="nav-link <?= str_starts_with(uri_string(), 'counselling/referral') ? 'active' : '' ?>">
                     <i class="fas fa-arrow-right-arrow-left"></i> Referrals
-                </a>
-                <?php endif; ?>
-
-                <?php if ($isPasimeo): ?>
-                <div class="nav-section-title">PASIMEO</div>
-                <a href="/pasimeo" class="nav-link <?= str_starts_with(uri_string(), 'pasimeo') ? 'active' : '' ?>">
-                    <i class="fas fa-people-carry-box"></i> Outreach Programs
                 </a>
                 <?php endif; ?>
 

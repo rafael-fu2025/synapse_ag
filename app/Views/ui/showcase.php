@@ -368,7 +368,6 @@ fp.close();</code></pre>
                     <option>Choose one…</option>
                     <option>Clinic Staff</option>
                     <option>Counsellor</option>
-                    <option>PASIMEO Coordinator</option>
                     <option>System Administrator</option>
                 </select>
             </div>
@@ -398,7 +397,6 @@ fp.close();</code></pre>
                 <option value="admin" data-icon="fas fa-shield-halved">System Administrator</option>
                 <option value="clinic" data-icon="fas fa-stethoscope">Clinic Staff</option>
                 <option value="counsellor" data-icon="fas fa-heart-pulse">Guidance Counsellor</option>
-                <option value="pasimeo" data-icon="fas fa-people-carry-box">PASIMEO Coordinator</option>
                 <option value="student" data-icon="fas fa-user-graduate">Student</option>
                 <option value="parent" data-icon="fas fa-users">Parent / Guardian</option>
                 <option value="nurse" data-icon="fas fa-user-nurse">School Nurse</option>
@@ -414,7 +412,6 @@ fp.close();</code></pre>
             <select multiple data-synapse-dropdown data-placeholder="Pick modules…">
                 <option value="clinic" data-icon="fas fa-stethoscope">Clinic Management</option>
                 <option value="counselling" data-icon="fas fa-heart-pulse">Counselling</option>
-                <option value="pasimeo" data-icon="fas fa-people-carry-box">PASIMEO Outreach</option>
                 <option value="inventory" data-icon="fas fa-pills">Inventory</option>
                 <option value="iot" data-icon="fas fa-qrcode">IoT Kiosk</option>
                 <option value="reports" data-icon="fas fa-chart-bar">Reports &amp; Analytics</option>

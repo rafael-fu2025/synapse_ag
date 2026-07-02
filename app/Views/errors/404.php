@@ -29,9 +29,6 @@ if ($isLoggedIn) {
     if (in_array($role, ['admin','counsellor'], true)) {
         $suggestions[] = ['label' => 'Appointments',    'url' => base_url('counselling'),          'icon' => 'fas fa-calendar-check'];
     }
-    if (in_array($role, ['admin','pasimeo_coordinator'], true)) {
-        $suggestions[] = ['label' => 'PASIMEO programs','url' => base_url('pasimeo'),              'icon' => 'fas fa-people-carry-box'];
-    }
 } else {
     $suggestions[] = ['label' => 'Sign in',           'url' => base_url('login'),                 'icon' => 'fas fa-sign-in-alt'];
 }

@@ -23,7 +23,6 @@ $routes->get('dashboard', 'DashboardController::index');
 $routes->get('dashboard/admin', 'DashboardController::admin', ['filter' => 'role:admin']);
 $routes->get('dashboard/clinic', 'DashboardController::clinic', ['filter' => 'role:admin,clinic_staff']);
 $routes->get('dashboard/counsellor', 'DashboardController::counsellor', ['filter' => 'role:admin,counsellor']);
-$routes->get('dashboard/pasimeo', 'DashboardController::pasimeo', ['filter' => 'role:admin,pasimeo_coordinator']);
 $routes->get('dashboard/student', 'DashboardController::student', ['filter' => 'role:admin,student']);
 
 $routes->get('notifications/unread', 'NotificationController::unread');
@@ -150,41 +149,6 @@ $routes->group('counselling', ['filter' => 'role:admin,counsellor'], static func
 });
 
 // ============================================================
-// PASIMEO MODULE (Phase 4)
-// ============================================================
-$routes->group('pasimeo', ['filter' => 'role:admin,pasimeo_coordinator'], static function ($routes) {
-    // Dashboard
-    $routes->get('/', 'Pasimeo\ProgramController::index');
-
-    // Programs
-    $routes->get('programs/create', 'Pasimeo\ProgramController::create');
-    $routes->post('programs/store', 'Pasimeo\ProgramController::store');
-    $routes->get('programs/(:num)', 'Pasimeo\ProgramController::show/$1');
-    $routes->get('programs/edit/(:num)', 'Pasimeo\ProgramController::edit/$1');
-    $routes->post('programs/update/(:num)', 'Pasimeo\ProgramController::update/$1');
-
-    // Activities
-    $routes->get('activities/create/(:num)', 'Pasimeo\ActivityController::create/$1');
-    $routes->post('activities/store', 'Pasimeo\ActivityController::store');
-    $routes->get('activities/(:num)', 'Pasimeo\ActivityController::show/$1');
-    $routes->post('activities/status/(:num)', 'Pasimeo\ActivityController::updateStatus/$1');
-
-    // Volunteers
-    $routes->get('volunteers/assign/(:num)', 'Pasimeo\VolunteerController::assign/$1');
-    $routes->post('volunteers/store', 'Pasimeo\VolunteerController::store');
-    $routes->post('volunteers/confirm/(:num)', 'Pasimeo\VolunteerController::confirm/$1');
-    $routes->post('volunteers/decline/(:num)', 'Pasimeo\VolunteerController::decline/$1');
-
-    // Attendance
-    $routes->get('attendance/(:num)', 'Pasimeo\AttendanceController::index/$1');
-    $routes->post('attendance/check-in', 'Pasimeo\AttendanceController::checkIn');
-    $routes->post('attendance/check-out/(:num)', 'Pasimeo\AttendanceController::checkOut/$1');
-    $routes->post('attendance/verify/(:num)', 'Pasimeo\AttendanceController::verify/$1');
-    $routes->post('attendance/verify-all/(:num)', 'Pasimeo\AttendanceController::verifyAll/$1');
-});
-
-
-// ============================================================
 // ADMIN MODULE
 // ============================================================
 $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
@@ -228,7 +192,6 @@ $routes->group('reports', ['filter' => 'role:admin'], static function ($routes) 
     $routes->get('/',            'Reports\ReportController::index');
     $routes->get('clinic',       'Reports\ReportController::clinic');
     $routes->get('counselling',  'Reports\ReportController::counselling');
-    $routes->get('pasimeo',      'Reports\ReportController::pasimeo');
     $routes->get('inventory',    'Reports\ReportController::inventory');
     $routes->get('export/(:any)', 'Reports\ReportController::export/$1');
 });

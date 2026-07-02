@@ -172,10 +172,9 @@ class UserModel extends Model
     }
 
     /**
-     * Count rows in clinical / outreach / inventory tables that reference
-     * this user and would BLOCK a hard-delete because of RESTRICT foreign
-     * keys. Used by the delete flow to decide whether a hard-delete is
-     * even legal.
+     * Count rows in clinical / inventory tables that reference this user
+     * and would BLOCK a hard-delete because of RESTRICT foreign keys. Used
+     * by the delete flow to decide whether a hard-delete is even legal.
      *
      * Note: this is a "blocker" count — it intentionally does NOT count
      * audit_logs (which uses SET NULL) or anything CASCADE-cleanable, since
@@ -199,11 +198,6 @@ class UserModel extends Model
             ['treatments',              'administered_by'],
             ['referrals',               'referred_by'],
             ['referrals',               'referred_to'],
-            ['outreach_programs',       'coordinator_id'],
-            ['outreach_attendance',     'user_id'],
-            ['outreach_attendance',     'verified_by'],
-            ['volunteer_assignments',   'user_id'],
-            ['volunteer_assignments',   'assigned_by'],
             ['ai_triage_predictions',   'decided_by'],
             ['assessment_templates',    'created_by'],
             ['report_configurations',   'created_by'],
@@ -280,7 +274,6 @@ class UserModel extends Model
         $db->table('counsellor_availability')->where('counsellor_id', $userId)->delete();
         $db->table('notifications')->where('user_id', $userId)->delete();
         $db->table('refresh_tokens')->where('user_id', $userId)->delete();
-        $db->table('volunteer_workload_scores')->where('user_id', $userId)->delete();
         $db->table('scheduling_analytics')->where('counsellor_id', $userId)->delete();
 
         // SET NULL tables — clear the FK so the row stays for audit/history.
@@ -340,7 +333,7 @@ class UserModel extends Model
             foreach (array_keys($result['snapshots']) as $id) {
                 $blockers = $this->countDeleteBlockers($id);
                 if ($blockers > 0) {
-                    $result['skipped'][$id] = "Has {$blockers} related record(s) in clinical/inventory/outreach. Use 'Anonymize' instead.";
+                    $result['skipped'][$id] = "Has {$blockers} related record(s) in clinical/inventory tables. Use 'Anonymize' instead.";
                     unset($result['snapshots'][$id]);
                 }
             }

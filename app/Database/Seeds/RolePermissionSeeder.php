@@ -20,8 +20,6 @@ class RolePermissionSeeder extends Seeder
                 'medicines.view', 'medicines.manage', 'inventory.dispense', 'inventory.adjust', 'inventory.reports',
                 'appointments.view', 'appointments.create', 'appointments.manage', 'sessions.notes',
                 'screenings.submit', 'screenings.view', 'crisis.manage', 'risk.view',
-                'programs.view', 'programs.manage', 'activities.manage', 'volunteers.assign',
-                'attendance.manage', 'attendance.view_own',
                 'reports.generate', 'reports.view', 'reports.export',
                 'ai.triage.view', 'ai.triage.override', 'ai.forecast.view', 'ai.risk.view',
                 'ai.scheduling.view', 'ai.reports.generate', 'ai.conflict.view',
@@ -46,19 +44,10 @@ class RolePermissionSeeder extends Seeder
                 'reports.view',
             ],
 
-            'pasimeo_coordinator' => [
-                'programs.view', 'programs.manage',
-                'activities.manage', 'volunteers.assign',
-                'attendance.manage', 'attendance.view_own',
-                'ai.conflict.view',
-                'reports.view',
-            ],
-
             'student' => [
                 'appointments.view', 'appointments.create',
                 'screenings.submit',
                 'students.view_own',
-                'attendance.view_own',
             ],
         ];
 

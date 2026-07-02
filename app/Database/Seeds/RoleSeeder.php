@@ -25,11 +25,6 @@ class RoleSeeder extends Seeder
                 'description'  => 'Manages counselling appointments, screenings, risk assessments, and referrals.',
             ],
             [
-                'name'         => 'pasimeo_coordinator',
-                'display_name' => 'PASIMEO Coordinator',
-                'description'  => 'Manages outreach programs, activities, volunteer assignments, and attendance tracking.',
-            ],
-            [
                 'name'         => 'student',
                 'display_name' => 'Student',
                 'description'  => 'Can book appointments, view personal health records, complete screening forms, and track volunteer hours.',

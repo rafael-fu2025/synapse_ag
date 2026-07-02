@@ -118,7 +118,6 @@ class Filters extends BaseFilters
                 'admin/*',
                 'clinic/*',
                 'counselling/*',
-                'pasimeo/*',
                 'inventory/*',
                 'reports/*',
                 'students/*',

@@ -6,9 +6,6 @@ use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
 use App\Models\StudentModel;
 use App\Models\CounsellingAppointmentModel;
-use App\Models\OutreachActivityModel;
-use App\Models\VolunteerAssignmentModel;
-use App\Models\OutreachAttendanceModel;
 use App\Models\ConsultationModel;
 use App\Models\OfflineCheckinBufferModel;
 use App\Controllers\Iot\CheckinController;
@@ -66,7 +63,6 @@ class TestCheckin extends BaseCommand
             CLI::write("\n[Test Case A] Clinic Fallback Routing:", 'white');
             // Ensure no appointments or assignments today
             $db->table('counselling_appointments')->where('student_id', $studentId)->where('appointment_date', $today)->delete();
-            $db->table('volunteer_assignments')->where('user_id', $userId)->delete();
             
             $resultA = $method->invokeArgs($controller, [$student, 'qr', 'Kiosk-TestA', date('Y-m-d H:i:s')]);
             
@@ -111,90 +107,6 @@ class TestCheckin extends BaseCommand
             
             if (($resultB['type'] ?? '') !== 'counselling') {
                 throw new Exception("Expected counselling routing, got: " . ($resultB['type'] ?? 'none'));
-            }
-            CLI::write("  => PASS", 'green');
-            
-            // Test Case C: PASIMEO OUTREACH ROUTING (Confirmed volunteer assignment today)
-            // ----------------------------------------------------
-            CLI::write("\n[Test Case C] Outreach Activity Routing:", 'white');
-            // Delete appointment today to prevent overlap
-            $db->table('counselling_appointments')->where('student_id', $studentId)->where('appointment_date', $today)->delete();
-            
-            // Get coordinator user
-            $coordinator = $db->table('user_roles')
-                ->join('roles', 'roles.id = user_roles.role_id')
-                ->where('roles.name', 'pasimeo_coordinator')
-                ->select('user_roles.user_id')
-                ->get()->getRow();
-            $coordinatorId = $coordinator ? (int) $coordinator->user_id : 1;
-
-            // Create outreach program & activity today
-            $db->table('outreach_programs')->insert([
-                'name' => 'Test Health Program',
-                'description' => 'Testing IoT checkin routing',
-                'coordinator_id' => $coordinatorId,
-                'status' => 'active',
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
-            $programId = $db->insertID();
-            
-            $db->table('outreach_activities')->insert([
-                'program_id' => $programId,
-                'title' => 'Test Outreach Clinic Checkin',
-                'description' => 'Test',
-                'location' => 'Main gym',
-                'activity_date' => $today,
-                'start_time' => '08:00:00',
-                'end_time' => '17:00:00',
-                'status' => 'ongoing',
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
-            $activityId = $db->insertID();
-            
-            // Create confirmed assignment for student
-            $db->table('volunteer_assignments')->insert([
-                'activity_id' => $activityId,
-                'user_id' => $userId,
-                'assigned_role' => 'general_volunteer',
-                'status' => 'confirmed',
-                'assigned_by' => $coordinatorId,
-                'assigned_at' => date('Y-m-d H:i:s')
-            ]);
-            
-            // Call dispatch checkin (Check-in)
-            $scannedAtVal = date('Y-m-d H:i:s');
-            $resultC_in = $method->invokeArgs($controller, [$student, 'qr', 'Kiosk-TestC', $scannedAtVal]);
-            CLI::write("  - Checkin Routing Type: " . ($resultC_in['type'] ?? 'N/A'));
-            CLI::write("  - Checkin Success: " . ($resultC_in['success'] ? 'YES' : 'NO'));
-            
-            if (($resultC_in['type'] ?? '') !== 'outreach_checkin') {
-                throw new Exception("Expected outreach_checkin routing, got: " . ($resultC_in['type'] ?? 'none'));
-            }
-            
-            // Debug the database state before check-out
-            $volModel = new VolunteerAssignmentModel();
-            $testAssign = $volModel->select('volunteer_assignments.*, outreach_activities.id as act_id')
-                ->join('outreach_activities', 'outreach_activities.id = volunteer_assignments.activity_id')
-                ->where('volunteer_assignments.user_id', $userId)
-                ->where('outreach_activities.activity_date', date('Y-m-d'))
-                ->where('volunteer_assignments.status', 'confirmed')
-                ->first();
-            CLI::write("  - DEBUG Assignment query result: " . ($testAssign ? "Found act_id=" . $testAssign['act_id'] : "NULL"));
-
-            $attModel = new OutreachAttendanceModel();
-            $testAtt = $attModel->where('activity_id', $activityId)->where('user_id', $userId)->first();
-            CLI::write("  - DEBUG Attendance record: " . ($testAtt ? "Found ID=" . $testAtt['id'] . ", Check-out=" . var_export($testAtt['check_out_time'], true) : "NULL"));
-            
-            // Call dispatch checkin again (Check-out)
-            $scannedAtOutVal = date('Y-m-d', strtotime($scannedAtVal)) . ' ' . date('H:i:s', strtotime($scannedAtVal) + 7200);
-            $resultC_out = $method->invokeArgs($controller, [$student, 'qr', 'Kiosk-TestC', $scannedAtOutVal]);
-            CLI::write("  - Checkout Routing Type: " . ($resultC_out['type'] ?? 'N/A'));
-            CLI::write("  - Checkout Success: " . ($resultC_out['success'] ? 'YES' : 'NO'));
-            
-            if (($resultC_out['type'] ?? '') !== 'outreach_checkout') {
-                throw new Exception("Expected outreach_checkout routing, got: " . ($resultC_out['type'] ?? 'none'));
             }
             CLI::write("  => PASS", 'green');
             

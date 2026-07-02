@@ -46,14 +46,6 @@ class PermissionSeeder extends Seeder
             ['name' => 'crisis.manage',          'module' => 'counselling', 'description' => 'View and manage crisis alerts'],
             ['name' => 'risk.view',              'module' => 'counselling', 'description' => 'View AI risk scores and trends'],
 
-            // ── PASIMEO ──
-            ['name' => 'programs.view',          'module' => 'pasimeo',     'description' => 'View outreach programs'],
-            ['name' => 'programs.manage',        'module' => 'pasimeo',     'description' => 'Create/edit outreach programs'],
-            ['name' => 'activities.manage',      'module' => 'pasimeo',     'description' => 'Create/edit outreach activities'],
-            ['name' => 'volunteers.assign',      'module' => 'pasimeo',     'description' => 'Assign volunteers to activities'],
-            ['name' => 'attendance.manage',      'module' => 'pasimeo',     'description' => 'Record and verify outreach attendance'],
-            ['name' => 'attendance.view_own',    'module' => 'pasimeo',     'description' => 'View own volunteer hours'],
-
             // ── Reports ──
             ['name' => 'reports.generate',       'module' => 'reports',     'description' => 'Generate system reports'],
             ['name' => 'reports.view',           'module' => 'reports',     'description' => 'View generated reports'],

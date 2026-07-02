@@ -5,11 +5,8 @@ namespace App\Controllers\Iot;
 use App\Controllers\BaseController;
 use App\Models\StudentModel;
 use App\Models\CounsellingAppointmentModel;
-use App\Models\OutreachActivityModel;
-use App\Models\OutreachAttendanceModel;
 use App\Models\ConsultationModel;
 use App\Models\OfflineCheckinBufferModel;
-use App\Models\VolunteerAssignmentModel;
 use App\Models\AuditLogModel;
 use App\Models\NotificationModel;
 
@@ -99,89 +96,7 @@ class CheckinController extends BaseController
         $userId = (int) $student['user_id'];
         $scanDate = date('Y-m-d', strtotime($scannedAt));
 
-        // 1. Check for PASIMEO Outreach Activity TODAY where student is CONFIRMED
-        $volunteerModel = new VolunteerAssignmentModel();
-        $assignment = $volunteerModel->select('volunteer_assignments.*, outreach_activities.id as act_id, outreach_activities.title, outreach_activities.start_time, outreach_activities.end_time')
-            ->join('outreach_activities', 'outreach_activities.id = volunteer_assignments.activity_id')
-            ->where('volunteer_assignments.user_id', $userId)
-            ->where('outreach_activities.activity_date', $scanDate)
-            ->where('volunteer_assignments.status', 'confirmed')
-            ->first();
-
-        if ($assignment) {
-            $attendanceModel = new OutreachAttendanceModel();
-            $existingAttendance = $attendanceModel->where('activity_id', $assignment['act_id'])
-                ->where('user_id', $userId)
-                ->first();
-
-            if (! $existingAttendance) {
-                // Check-in
-                $insertedId = $attendanceModel->checkIn((int) $assignment['act_id'], $userId, $method);
-                if ($insertedId) {
-                    $attendanceModel->update($insertedId, ['check_in_time' => $scannedAt]);
-
-                    $auditModel = new AuditLogModel();
-                    $auditModel->logAction($userId, 'check_in', 'pasimeo', 'outreach_attendance', $insertedId);
-
-                    return [
-                        'success'     => true,
-                        'type'        => 'outreach_checkin',
-                        'destination' => 'PASIMEO Outreach Activity',
-                        'title'       => 'Outreach Check-In',
-                        'message'     => "Checked in for outreach activity: {$assignment['title']}.",
-                        'student'     => [
-                            'name'           => $student['full_name'],
-                            'number'         => $student['student_number'],
-                            'course'         => $student['course'],
-                            'year_level'     => $student['year_level'],
-                            'avatar'         => $student['avatar_url'],
-                            'allergy_alert'  => $this->hasSevereAllergy($student),
-                        ],
-                    ];
-                }
-            } elseif ($existingAttendance['check_out_time'] === null) {
-                // Check-out
-                $checkOut = $scannedAt;
-                $checkIn = strtotime($existingAttendance['check_in_time']);
-                $hours = round((strtotime($checkOut) - $checkIn) / 3600, 2);
-
-                $attendanceModel->update($existingAttendance['id'], [
-                    'check_out_time' => $checkOut,
-                    'hours_credited' => $hours,
-                ]);
-
-                $auditModel = new AuditLogModel();
-                $auditModel->logAction($userId, 'check_out', 'pasimeo', 'outreach_attendance', (int) $existingAttendance['id']);
-
-                return [
-                    'success'     => true,
-                    'type'        => 'outreach_checkout',
-                    'destination' => 'PASIMEO Outreach Activity',
-                    'title'       => 'Outreach Check-Out',
-                    'message'     => "Checked out from outreach activity: {$assignment['title']}. Credited hours: {$hours}h.",
-                    'student'     => [
-                        'name'           => $student['full_name'],
-                        'number'         => $student['student_number'],
-                        'course'         => $student['course'],
-                        'year_level'     => $student['year_level'],
-                        'avatar'         => $student['avatar_url'],
-                        'allergy_alert'  => $this->hasSevereAllergy($student),
-                    ],
-                ];
-            } else {
-                return [
-                    'success'     => false,
-                    'message'     => "Already completed attendance for today's outreach activity: {$assignment['title']}.",
-                    'student'     => [
-                        'name'           => $student['full_name'],
-                        'number'         => $student['student_number'],
-                        'avatar'         => $student['avatar_url'],
-                    ],
-                ];
-            }
-        }
-
-        // 2. Check for Counselling Appointment TODAY (scheduled/confirmed)
+        // 1. Check for Counselling Appointment TODAY (scheduled/confirmed)
         $apptModel = new CounsellingAppointmentModel();
         $appt = $apptModel->where('student_id', $studentId)
             ->where('appointment_date', $scanDate)
@@ -226,7 +141,7 @@ class CheckinController extends BaseController
             }
         }
 
-        // 3. Fallback: Clinic Consultation
+        // 2. Fallback: Clinic Consultation
         $consultModel = new ConsultationModel();
 
         $attendingUser = $db->table('user_roles')

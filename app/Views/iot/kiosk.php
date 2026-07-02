@@ -28,7 +28,7 @@
                a wheelchair can hit them.
              - One intentional motion only: a subtle scan-line. No pulse,
                no glow, no "AI" gradient text.
-             - Three visit purposes (Clinic / Counselling / PASIMEO) chosen
+             - Three visit purposes (Clinic / Counselling) chosen
                up front — the scan step then adapts to the chosen purpose.
              - Live "Now Serving" panel on the right so the student sees
                context (how many ahead, who's being seen).
@@ -261,10 +261,6 @@
         .purpose-tile[data-purpose="counselling"] .purpose-tile__icon {
             background: #DBEAFE;
             color: #1E40AF;
-        }
-        .purpose-tile[data-purpose="pasimeo"] .purpose-tile__icon {
-            background: #FEF3C7;
-            color: #92400E;
         }
         .purpose-tile.is-selected[data-purpose="clinic"] .purpose-tile__icon {
             background: var(--primary-600);
@@ -900,14 +896,6 @@
             </div>
             <div class="purpose-tile__check" aria-hidden="true"></div>
         </button>
-        <button type="button" class="purpose-tile" data-purpose="pasimeo" aria-pressed="false">
-            <div class="purpose-tile__icon"><i class="fas fa-hand-holding-heart"></i></div>
-            <div>
-                <div class="purpose-tile__title">PASIMEO</div>
-                <div class="purpose-tile__desc">Outreach, volunteer check-in</div>
-            </div>
-            <div class="purpose-tile__check" aria-hidden="true"></div>
-        </button>
     </aside>
 
     <!-- CENTER: Scan + triage + slip -->
@@ -1214,7 +1202,7 @@
                 els.triageCard.classList.add('is-active');
                 els.triageCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else {
-                /* Counselling / PASIMEO: skip triage, go straight to submit. */
+                /* Counselling: skip triage, go straight to submit. */
                 await submitFinal();
             }
         } catch (err) {
@@ -1241,7 +1229,7 @@
              - scan_method         ('qr' | 'rfid' | 'manual')
              - chief_complaint     (clinic only)
              - triage_priority     (clinic only)
-             - purpose             (clinic | counselling | pasimeo)
+             - purpose             (clinic | counselling)
         */
         const body = new URLSearchParams();
         body.set('student_identifier', id);
@@ -1251,8 +1239,6 @@
             body.set('triage_priority', state.priority || 'medium');
         } else if (state.purpose === 'counselling') {
             body.set('purpose', 'counselling');
-        } else if (state.purpose === 'pasimeo') {
-            body.set('purpose', 'pasimeo');
         }
 
         els.triageSubmitBtn.disabled = true;

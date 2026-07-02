@@ -15,9 +15,9 @@ class MockDataSeeder extends Seeder
         // Disable foreign key checks for truncation
         $this->db->query('SET FOREIGN_KEY_CHECKS = 0');
         $tables = [
-            'medicines', 'medicine_batches', 
-            'consultations', 'consultation_vitals', 'counselling_appointments', 
-            'assessment_responses', 'ai_risk_scores', 'outreach_programs', 'notifications', 'audit_logs'
+            'medicines', 'medicine_batches',
+            'consultations', 'consultation_vitals', 'counselling_appointments',
+            'assessment_responses', 'ai_risk_scores', 'notifications', 'audit_logs'
         ];
         foreach ($tables as $table) {
             $this->db->query("TRUNCATE TABLE `$table`");
@@ -199,34 +199,7 @@ class MockDataSeeder extends Seeder
             } catch (\Exception $e) {}
         }
 
-        // 5. Generate PASIMEO Programs
-        $programs = [
-            [
-                'name'           => 'Community Medical Mission',
-                'description'    => 'Providing free medical checkups to the local barangay.',
-                'coordinator_id' => 1,
-                'start_date'     => $today->addDays(7)->toDateString(),
-                'end_date'       => $today->addDays(7)->toDateString(),
-                'status'         => 'upcoming',
-                'created_at'     => Time::now()->toDateTimeString()
-            ],
-            [
-                'name'           => 'Mental Health Awareness Seminar',
-                'description'    => 'Seminar for college students on managing stress.',
-                'coordinator_id' => 1,
-                'start_date'     => $today->subDays(5)->toDateString(),
-                'end_date'       => $today->subDays(5)->toDateString(),
-                'status'         => 'completed',
-                'created_at'     => Time::now()->toDateTimeString()
-            ]
-        ];
-        foreach ($programs as $prog) {
-            try {
-                $this->db->table('outreach_programs')->insert($prog);
-            } catch (\Exception $e) {}
-        }
-
-        // 6. Generate Notifications
+        // 5. Generate Notifications
         $this->db->table('notifications')->insertBatch([
             [
                 'user_id' => 1,
